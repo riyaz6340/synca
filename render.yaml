@@ -1,0 +1,56 @@
+databases:
+  - name: avento-db
+    plan: free
+    databaseName: avento_prod
+    user: avento
+
+services:
+  - type: web
+    name: avento-api
+    plan: free
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run migrate && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: VAPID_PUBLIC_KEY
+        value: BBrdGA6XIcbxcug7cF6tTNhnFakSulGl-aWLQ7u01SusorK6D9uLkVnjewEjTXTasboj-cJuCX3vmJdQTIT-lf8
+      - key: VAPID_PRIVATE_KEY
+        value: CGpXlqoQBx_N6yiuyebhkLpXQg8zjSp4DK3L0pkW6-U
+      - key: VAPID_SUBJECT
+        value: mailto:admin@avento.app
+      - key: CORS_ORIGINS
+        value: https://synca.vercel.app
+      - key: DB_HOST
+        fromDatabase:
+          name: avento-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: avento-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: avento-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: avento-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: avento-db
+          property: password
+      - key: REDIS_HOST
+        value: ""
+      - key: REDIS_PORT
+        value: "6379"
+      - key: REDIS_PASSWORD
+        value: ""
