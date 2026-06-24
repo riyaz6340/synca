@@ -35,6 +35,8 @@
     "knex": "^3.2.10",
     "pdfkit": "^0.19.1",
     "pg": "^8.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
@@ -49,8 +51,6 @@
     "@typescript-eslint/eslint-plugin": "^8.61.1",
     "@typescript-eslint/parser": "^8.61.1",
     "eslint": "^10.5.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1"
   }
 }
