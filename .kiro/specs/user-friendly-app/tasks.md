@@ -146,26 +146,26 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Implement authentication context and protected routing
-  - [-] 5.1 Implement Auth Context (`src/context/AuthContext.tsx`)
+  - [x] 5.1 Implement Auth Context (`src/context/AuthContext.tsx`)
     - Provide `token`, `user`, `isAuthenticated`, `isLoading`, `login()`, `logout()`
     - On mount: attempt silent refresh if stored token exists
     - `login()`: call `authApi.login`, store token on success
     - `logout()`: call `authApi.logout`, discard token, redirect to login
     - _Requirements: 2.1, 2.4, 2.5_
 
-  - [-] 5.2 Implement ProtectedRoute component (`src/components/ProtectedRoute.tsx`)
+  - [x] 5.2 Implement ProtectedRoute component (`src/components/ProtectedRoute.tsx`)
     - Redirect unauthenticated users to login page
     - Show loading state during auth check
     - _Requirements: 2.5_
 
-  - [~] 5.3 Implement App shell and routing (`src/App.tsx`)
+  - [-] 5.3 Implement App shell and routing (`src/App.tsx`)
     - Configure React Router with routes: `/login`, `/` (home/presence), `/attendance`, `/announcements`, `/notifications`, `/leave`
     - Wrap protected routes in `ProtectedRoute`
     - Include `AppNav` component for authenticated views
     - _Requirements: 8.7_
 
-- [ ] 6. Implement shared UI components
-  - [-] 6.1 Create shared components (`src/components/`)
+- [x] 6. Implement shared UI components
+  - [x] 6.1 Create shared components (`src/components/`)
     - `LoadingIndicator.tsx` — displayed while requests are in progress
     - `EmptyState.tsx` — displayed when no data is returned
     - `ErrorWithRetry.tsx` — error message with retry button
@@ -173,25 +173,25 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - _Requirements: 8.3, 8.4, 8.5, 8.7_
 
 - [ ] 7. Implement data hooks
-  - [~] 7.1 Implement `useChildren` hook (`src/hooks/useChildren.ts`)
+  - [-] 7.1 Implement `useChildren` hook (`src/hooks/useChildren.ts`)
     - Manage `ViewState<PersonWithStatus[]>` with loading/success/empty/error states
     - Call `portalApi.getChildren()`, apply `toDisplayStatus` mapping
     - Expose `retry()` callback
     - _Requirements: 3.1, 3.4, 3.5, 3.6_
 
-  - [~] 7.2 Implement `useAttendance` hook (`src/hooks/useAttendance.ts`)
+  - [-] 7.2 Implement `useAttendance` hook (`src/hooks/useAttendance.ts`)
     - Accept `personId` and `DateRange` parameters
     - Validate date range with `isValidDateFormat` and `isValidRange` before requesting
     - Call `portalApi.getAttendance()`, apply `sortAttendanceByDateDesc`
     - Manage view state and expose `retry()`
     - _Requirements: 4.1, 4.2, 4.3, 4.5, 4.7_
 
-  - [~] 7.3 Implement `useAnnouncements` hook (`src/hooks/useAnnouncements.ts`)
+  - [-] 7.3 Implement `useAnnouncements` hook (`src/hooks/useAnnouncements.ts`)
     - Call `portalApi.getAnnouncements()`, apply `sortAnnouncementsByPublishedDesc`
     - Manage view state and expose `retry()`
     - _Requirements: 5.1, 5.3, 5.4, 5.5_
 
-  - [~] 7.4 Implement `useNotifications` hook (`src/hooks/useNotifications.ts`)
+  - [-] 7.4 Implement `useNotifications` hook (`src/hooks/useNotifications.ts`)
     - Page size 20; provide `loadMore()` to fetch next page
     - Apply `sortNotificationsByEffectiveDateDesc`
     - Retain previously loaded notifications on error
