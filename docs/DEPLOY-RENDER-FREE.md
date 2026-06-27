@@ -44,8 +44,8 @@ If the blueprint doesn't work:
      PORT=10000
      JWT_SECRET=<paste a random 64-char string>
      JWT_EXPIRES_IN=30d
-     VAPID_PUBLIC_KEY=BBrdGA6XIcbxcug7cF6tTNhnFakSulGl-aWLQ7u01SusorK6D9uLkVnjewEjTXTasboj-cJuCX3vmJdQTIT-lf8
-     VAPID_PRIVATE_KEY=CGpXlqoQBx_N6yiuyebhkLpXQg8zjSp4DK3L0pkW6-U
+     VAPID_PUBLIC_KEY=<generate with: node -e "console.log(require('web-push').generateVAPIDKeys())">
+     VAPID_PRIVATE_KEY=<generate with the same command above>
      VAPID_SUBJECT=mailto:admin@avento.app
      CORS_ORIGINS=https://synca.vercel.app
      DB_HOST=<from your PostgreSQL internal host>

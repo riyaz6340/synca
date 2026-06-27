@@ -293,4 +293,26 @@ router.post(
   }
 );
 
+// DELETE /:id — Delete an announcement (Admin only)
+router.delete(
+  '/:id',
+  authenticate,
+  tenantIsolation,
+  authorize('Admin'),
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+
+    const deleted = await db('announcements')
+      .where({ id, organization_id: req.organizationId })
+      .del();
+
+    if (!deleted) {
+      res.status(404).json({ error: 'Announcement not found' });
+      return;
+    }
+
+    res.json({ message: 'Announcement deleted' });
+  }
+);
+
 export default router;

@@ -21,9 +21,9 @@ services:
       - key: JWT_EXPIRES_IN
         value: 30d
       - key: VAPID_PUBLIC_KEY
-        value: BBrdGA6XIcbxcug7cF6tTNhnFakSulGl-aWLQ7u01SusorK6D9uLkVnjewEjTXTasboj-cJuCX3vmJdQTIT-lf8
+        sync: false  # Set manually in Render dashboard after generating new keys
       - key: VAPID_PRIVATE_KEY
-        value: CGpXlqoQBx_N6yiuyebhkLpXQg8zjSp4DK3L0pkW6-U
+        sync: false  # Set manually in Render dashboard after generating new keys
       - key: VAPID_SUBJECT
         value: mailto:admin@avento.app
       - key: CORS_ORIGINS

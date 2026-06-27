@@ -104,6 +104,16 @@ export default function AnnouncementsPage() {
     }
   }
 
+  async function handleDelete(id: string, title: string) {
+    if (!confirm(`Delete announcement "${title}"? This will remove it from parents too.`)) return
+    try {
+      await apiClient.delete(`/announcements/${id}`)
+      void fetchAnnouncements()
+    } catch {
+      alert('Failed to delete announcement')
+    }
+  }
+
   if (loading) return <p>Loading announcements...</p>
   if (error) return <p style={{ color: 'red' }}>{error}</p>
 
@@ -136,6 +146,7 @@ export default function AnnouncementsPage() {
                 {!a.published_at && (
                   <button onClick={() => void handlePublish(a.id)} style={{ ...btnSmall, marginLeft: '0.5rem', color: '#16a34a' }}>Publish</button>
                 )}
+                <button onClick={() => void handleDelete(a.id, a.title)} style={{ ...btnSmall, marginLeft: '0.5rem', color: '#dc2626' }}>Delete</button>
               </td>
             </tr>
           ))}

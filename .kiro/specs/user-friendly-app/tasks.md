@@ -6,28 +6,28 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
 
 ## Tasks
 
-- [ ] 1. Set up project structure and configuration
-  - [-] 1.1 Scaffold the `parent-app/` project folder with `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, `.env.example`, and directory structure (`src/config`, `src/api`, `src/lib`, `src/context`, `src/components`, `src/hooks`, `src/pages`)
+- [x] 1. Set up project structure and configuration
+  - [x] 1.1 Scaffold the `parent-app/` project folder with `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, `.env.example`, and directory structure (`src/config`, `src/api`, `src/lib`, `src/context`, `src/components`, `src/hooks`, `src/pages`)
     - Install dependencies: react, react-dom, react-router-dom, axios
     - Install dev dependencies: typescript, vite, @vitejs/plugin-react, vitest, fast-check, @testing-library/react, @testing-library/jest-dom, jsdom
     - Configure Vite with `outDir: 'dist'` inside `parent-app/`
     - Document `VITE_API_URL` in `.env.example`
     - _Requirements: 1.1, 1.2, 1.5, 1.7_
 
-  - [~] 1.2 Implement the Config Loader (`src/config/env.ts`)
+  - [x] 1.2 Implement the Config Loader (`src/config/env.ts`)
     - Export `loadApiBaseUrl()` that reads `import.meta.env.VITE_API_URL`
     - Throw `ConfigError` if the value is missing, empty, or whitespace-only
     - Export `ConfigError` class extending `Error`
     - _Requirements: 1.5, 1.6_
 
-  - [~] 1.3 Create the app entry point (`src/main.tsx`)
+  - [x] 1.3 Create the app entry point (`src/main.tsx`)
     - Call `loadApiBaseUrl()` before mounting React
     - On `ConfigError`, render a static configuration-error screen without mounting the router
     - On success, render `<App />` with the router
     - _Requirements: 1.6_
 
-- [ ] 2. Implement pure logic layer and property tests
-  - [~] 2.1 Implement path allowlist guard (`src/lib/allowlist.ts`)
+- [x] 2. Implement pure logic layer and property tests
+  - [x] 2.1 Implement path allowlist guard (`src/lib/allowlist.ts`)
     - Export `ALLOWED_PREFIXES` array: `/api/auth`, `/api/portal`, `/api/leave-requests`
     - Export `isAllowedPath(path: string): boolean` — normalize path, check prefix match
     - Export `assertAllowedPath(path: string): void` — throws `DisallowedRequestError` with the offending path
@@ -40,7 +40,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Assert: permit iff starts with an allowed prefix; block otherwise
     - **Validates: Requirements 9.1, 9.5**
 
-  - [~] 2.3 Implement date validation and range checking (`src/lib/dates.ts`)
+  - [x] 2.3 Implement date validation and range checking (`src/lib/dates.ts`)
     - Export `isValidDateFormat(value: string): boolean` — strict YYYY-MM-DD with calendar validation
     - Export `isValidRange(range: DateRange): boolean` — end >= start, both valid format
     - _Requirements: 4.4, 4.6, 7.2_
@@ -57,7 +57,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Assert: succeeds iff end >= start; fails otherwise
     - **Validates: Requirements 4.6, 7.2**
 
-  - [~] 2.6 Implement presence-status derivation (`src/lib/presence.ts`)
+  - [x] 2.6 Implement presence-status derivation (`src/lib/presence.ts`)
     - Export `toDisplayStatus(person: PersonWithStatus): DisplayPresenceStatus`
     - Return `'Not yet marked'` when `current_status` is null, otherwise return the `presence_status` value
     - _Requirements: 3.2, 3.3_
@@ -68,7 +68,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Assert: result is exactly one of the five values; equals 'Not yet marked' iff `current_status` is null
     - **Validates: Requirements 3.2, 3.3**
 
-  - [~] 2.8 Implement sorting functions (`src/lib/sorting.ts`)
+  - [x] 2.8 Implement sorting functions (`src/lib/sorting.ts`)
     - Export `sortAttendanceByDateDesc(records: AttendanceRecord[]): AttendanceRecord[]`
     - Export `sortAnnouncementsByPublishedDesc(announcements: Announcement[]): Announcement[]`
     - Export `sortNotificationsByEffectiveDateDesc(notifications: Notification[]): Notification[]` — use `sent_at ?? created_at`
@@ -93,7 +93,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Assert: effective date = `sent_at ?? created_at`; output is a permutation of input with effective dates in non-increasing order
     - **Validates: Requirements 6.1, 6.2**
 
-  - [~] 2.12 Implement leave-request validation (`src/lib/leave.ts`)
+  - [x] 2.12 Implement leave-request validation (`src/lib/leave.ts`)
     - Export `validateLeaveSubmit(input: LeaveSubmitInput): LeaveValidationResult`
     - Check: all required fields present, reason is non-whitespace, date range valid per `isValidRange`
     - Return `{ ok, errors }` with exactly the offending fields
@@ -105,7 +105,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Assert: fails iff any field is empty or reason is whitespace-only or range invalid; reports exactly the offending fields
     - **Validates: Requirements 7.3**
 
-  - [~] 2.14 Implement login validation (`src/lib/loginValidation.ts`)
+  - [x] 2.14 Implement login validation (`src/lib/loginValidation.ts`)
     - Export `validateLoginFields(email, password, organization): { ok: boolean; missingFields: string[] }`
     - Return exactly the set of fields that are missing or whitespace-only
     - _Requirements: 2.6_
@@ -116,12 +116,12 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Assert: fails when any field is empty/whitespace; reports exactly the missing fields
     - **Validates: Requirements 2.6**
 
-- [ ] 3. Implement API client and type definitions
-  - [~] 3.1 Define TypeScript data models and interfaces (`src/api/types.ts`)
+- [x] 3. Implement API client and type definitions
+  - [x] 3.1 Define TypeScript data models and interfaces (`src/api/types.ts`)
     - Define all types: `PresenceStatus`, `DisplayPresenceStatus`, `ParentUser`, `Organization`, `PersonWithStatus`, `AttendanceRecord`, `Announcement`, `Notification`, `LeaveStatus`, `LeaveRequest`, `DateRange`, `LeaveSubmitInput`, `Pagination`, `LoginInput`, `LoginResponse`, `ViewState`
     - _Requirements: 3.2, 4.3, 5.2, 6.1, 7.5_
 
-  - [~] 3.2 Implement the API client (`src/api/client.ts`)
+  - [x] 3.2 Implement the API client (`src/api/client.ts`)
     - Create axios instance with `baseURL` from config loader
     - Add request interceptor: attach `Authorization: Bearer <token>` when token is held
     - Add request interceptor: run `assertAllowedPath()` on every outgoing request
@@ -135,14 +135,14 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Assert: outgoing request header contains `Authorization: Bearer <token>` exactly matching the held token
     - **Validates: Requirements 2.3**
 
-  - [~] 3.4 Implement typed endpoint wrappers (`src/api/endpoints.ts`)
+  - [x] 3.4 Implement typed endpoint wrappers (`src/api/endpoints.ts`)
     - Export `authApi`: `login`, `refresh`, `logout`, `listOrganizations`
     - Export `portalApi`: `getChildren`, `getAttendance`, `getNotifications`, `getAnnouncements`
     - Export `leaveApi`: `list`, `submit`
     - Each wrapper sets the appropriate per-call timeout
     - _Requirements: 2.1, 3.1, 4.1, 4.2, 5.1, 6.1, 7.1, 7.5_
 
-- [~] 4. Checkpoint - Verify core logic and API layer
+- [-] 4. Checkpoint - Verify core logic and API layer
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Implement authentication context and protected routing
