@@ -132,6 +132,15 @@ router.get('/persons/:id/attendance', async (req: Request, res: Response): Promi
       return;
     }
 
+    // Verify person belongs to same organization (cross-org protection)
+    const person = await db('persons')
+      .where({ id, organization_id: organizationId })
+      .first();
+    if (!person) {
+      res.status(404).json({ error: 'Person not found' });
+      return;
+    }
+
     // Build attendance query
     let query = db('attendance_records')
       .where('person_id', id)

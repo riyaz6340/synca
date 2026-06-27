@@ -142,18 +142,18 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Each wrapper sets the appropriate per-call timeout
     - _Requirements: 2.1, 3.1, 4.1, 4.2, 5.1, 6.1, 7.1, 7.5_
 
-- [-] 4. Checkpoint - Verify core logic and API layer
+- [x] 4. Checkpoint - Verify core logic and API layer
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Implement authentication context and protected routing
-  - [~] 5.1 Implement Auth Context (`src/context/AuthContext.tsx`)
+  - [-] 5.1 Implement Auth Context (`src/context/AuthContext.tsx`)
     - Provide `token`, `user`, `isAuthenticated`, `isLoading`, `login()`, `logout()`
     - On mount: attempt silent refresh if stored token exists
     - `login()`: call `authApi.login`, store token on success
     - `logout()`: call `authApi.logout`, discard token, redirect to login
     - _Requirements: 2.1, 2.4, 2.5_
 
-  - [~] 5.2 Implement ProtectedRoute component (`src/components/ProtectedRoute.tsx`)
+  - [-] 5.2 Implement ProtectedRoute component (`src/components/ProtectedRoute.tsx`)
     - Redirect unauthenticated users to login page
     - Show loading state during auth check
     - _Requirements: 2.5_
@@ -165,7 +165,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - _Requirements: 8.7_
 
 - [ ] 6. Implement shared UI components
-  - [~] 6.1 Create shared components (`src/components/`)
+  - [-] 6.1 Create shared components (`src/components/`)
     - `LoadingIndicator.tsx` — displayed while requests are in progress
     - `EmptyState.tsx` — displayed when no data is returned
     - `ErrorWithRetry.tsx` — error message with retry button

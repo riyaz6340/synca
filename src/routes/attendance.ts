@@ -274,6 +274,15 @@ router.get(
           res.status(403).json({ error: 'Forbidden: person is not associated with your account' });
           return;
         }
+      } else {
+        // Admin: verify person belongs to their organization
+        const person = await db('persons')
+          .where({ id: personId, organization_id: req.organizationId })
+          .first();
+        if (!person) {
+          res.status(404).json({ error: 'Person not found in your organization' });
+          return;
+        }
       }
 
       const now = new Date();
