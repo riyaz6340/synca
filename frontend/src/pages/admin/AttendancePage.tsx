@@ -13,6 +13,14 @@ interface Person {
 }
 
 type MarkingMode = 'individual' | 'absent_only' | 'present_only'
+type AttendanceType = 'full_day' | 'period_wise'
+
+interface Subject {
+  id: string
+  name: string
+  teacher_name?: string
+  period_number?: number
+}
 
 export default function AttendancePage() {
   const [groups, setGroups] = useState<Group[]>([])
@@ -27,6 +35,10 @@ export default function AttendancePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  // Period-wise
+  const [attendanceType, setAttendanceType] = useState<AttendanceType>('full_day')
+  const [subjects, setSubjects] = useState<Subject[]>([])
+  const [selectedSubjectId, setSelectedSubjectId] = useState('')
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -40,12 +52,17 @@ export default function AttendancePage() {
   useEffect(() => { void fetchGroups() }, [fetchGroups])
 
   async function loadGroupMembers(groupId: string) {
-    if (!groupId) { setMembers([]); return }
+    if (!groupId) { setMembers([]); setSubjects([]); return }
     setLoading(true)
     try {
-      const res = await apiClient.get(`/groups/${groupId}`)
-      setMembers(res.data.group?.members ?? [])
+      const [membersRes, subjectsRes] = await Promise.all([
+        apiClient.get(`/groups/${groupId}`),
+        apiClient.get('/subjects', { params: { group_id: groupId } }),
+      ])
+      setMembers(membersRes.data.group?.members ?? [])
+      setSubjects(subjectsRes.data.subjects ?? [])
       setSelectedStudents(new Set())
+      setSelectedSubjectId('')
     } catch {
       setError('Failed to load students')
     } finally {
@@ -103,11 +120,16 @@ export default function AttendancePage() {
           person_id: member.id,
           date: selectedDate,
           presence_status: status,
+          subject_id: attendanceType === 'period_wise' && selectedSubjectId ? selectedSubjectId : undefined,
+          period_label: attendanceType === 'period_wise' && selectedSubjectId
+            ? (subjects.find(s => s.id === selectedSubjectId)?.name || 'Period')
+            : 'Full Day',
         })
       })
       await Promise.all(promises)
       const absentCount = markingMode === 'absent_only' ? selectedStudents.size : members.length - selectedStudents.size
-      setSuccess(`Attendance saved! ${members.length - absentCount} present, ${absentCount} absent for ${selectedDate}`)
+      const periodInfo = attendanceType === 'period_wise' ? ` (${subjects.find(s => s.id === selectedSubjectId)?.name || 'Period'})` : ''
+      setSuccess(`Attendance saved! ${members.length - absentCount} present, ${absentCount} absent for ${selectedDate}${periodInfo}`)
       setSelectedStudents(new Set())
     } catch {
       setError('Failed to record attendance')
@@ -177,11 +199,43 @@ export default function AttendancePage() {
       {/* Marking Mode & Student List */}
       {selectedGroupId && members.length > 0 && (
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1.25rem' }}>
+
+          {/* Attendance Type: Full Day vs Period-wise */}
+          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', borderRadius: '8px', padding: '3px' }}>
+              <button onClick={() => { setAttendanceType('full_day'); setSelectedSubjectId('') }}
+                style={{ ...modeBtn, background: attendanceType === 'full_day' ? '#fff' : 'transparent', color: attendanceType === 'full_day' ? '#1e293b' : '#64748b', boxShadow: attendanceType === 'full_day' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+                📅 Full Day
+              </button>
+              <button onClick={() => setAttendanceType('period_wise')}
+                style={{ ...modeBtn, background: attendanceType === 'period_wise' ? '#fff' : 'transparent', color: attendanceType === 'period_wise' ? '#7c3aed' : '#64748b', boxShadow: attendanceType === 'period_wise' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+                disabled={subjects.length === 0}>
+                📚 Period-wise
+              </button>
+            </div>
+            {attendanceType === 'period_wise' && subjects.length > 0 && (
+              <select style={{ padding: '0.4rem 0.6rem', border: '1px solid #c4b5fd', borderRadius: '6px', fontSize: '0.85rem', background: '#f5f3ff', color: '#5b21b6' }} value={selectedSubjectId} onChange={e => setSelectedSubjectId(e.target.value)}>
+                <option value="">Select subject/period...</option>
+                {subjects.map(s => (
+                  <option key={s.id} value={s.id}>{s.period_number ? `P${s.period_number}. ` : ''}{s.name}{s.teacher_name ? ` (${s.teacher_name})` : ''}</option>
+                ))}
+              </select>
+            )}
+            {subjects.length === 0 && attendanceType === 'period_wise' && (
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>No subjects configured. Add them in Classes → Subjects.</span>
+            )}
+          </div>
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div>
               <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 500 }}>Date: </span>
               <strong style={{ color: '#1e293b' }}>{new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</strong>
               <span style={{ marginLeft: '1rem', fontSize: '0.85rem', color: '#475569' }}>{members.length} students</span>
+              {attendanceType === 'period_wise' && selectedSubjectId && (
+                <span style={{ marginLeft: '0.5rem', background: '#f5f3ff', color: '#7c3aed', padding: '0.15rem 0.5rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>
+                  {subjects.find(s => s.id === selectedSubjectId)?.name}
+                </span>
+              )}
             </div>
 
             {/* Marking Mode Toggle */}
