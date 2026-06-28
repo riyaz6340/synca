@@ -11,12 +11,17 @@ export type DisplayPresenceStatus = PresenceStatus | 'Not yet marked';
 
 // --- Users & Organizations ---
 
-export interface ParentUser {
+export type AppRole = 'Admin' | 'SuperAdmin' | 'Stakeholder';
+
+export interface AppUser {
   id: string;
   email: string;
-  role: 'Stakeholder';
+  role: AppRole;
   organization_id: string;
 }
+
+/** @deprecated Use AppUser instead */
+export type ParentUser = AppUser;
 
 export interface Organization {
   id: string;
@@ -100,11 +105,12 @@ export interface LoginInput {
   email: string;
   password: string;
   organization_name: string;
+  organization_id?: string;
 }
 
 export interface LoginResponse {
   token: string;
-  user: ParentUser;
+  user: AppUser;
 }
 
 // --- View State ---

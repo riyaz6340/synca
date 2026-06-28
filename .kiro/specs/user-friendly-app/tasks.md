@@ -145,7 +145,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
 - [x] 4. Checkpoint - Verify core logic and API layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Implement authentication context and protected routing
+- [x] 5. Implement authentication context and protected routing
   - [x] 5.1 Implement Auth Context (`src/context/AuthContext.tsx`)
     - Provide `token`, `user`, `isAuthenticated`, `isLoading`, `login()`, `logout()`
     - On mount: attempt silent refresh if stored token exists
@@ -158,7 +158,7 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Show loading state during auth check
     - _Requirements: 2.5_
 
-  - [-] 5.3 Implement App shell and routing (`src/App.tsx`)
+  - [x] 5.3 Implement App shell and routing (`src/App.tsx`)
     - Configure React Router with routes: `/login`, `/` (home/presence), `/attendance`, `/announcements`, `/notifications`, `/leave`
     - Wrap protected routes in `ProtectedRoute`
     - Include `AppNav` component for authenticated views
@@ -172,69 +172,69 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - `AppNav.tsx` — navigation bar with ≥44×44px touch targets linking the five views
     - _Requirements: 8.3, 8.4, 8.5, 8.7_
 
-- [ ] 7. Implement data hooks
-  - [-] 7.1 Implement `useChildren` hook (`src/hooks/useChildren.ts`)
+- [x] 7. Implement data hooks
+  - [x] 7.1 Implement `useChildren` hook (`src/hooks/useChildren.ts`)
     - Manage `ViewState<PersonWithStatus[]>` with loading/success/empty/error states
     - Call `portalApi.getChildren()`, apply `toDisplayStatus` mapping
     - Expose `retry()` callback
     - _Requirements: 3.1, 3.4, 3.5, 3.6_
 
-  - [-] 7.2 Implement `useAttendance` hook (`src/hooks/useAttendance.ts`)
+  - [x] 7.2 Implement `useAttendance` hook (`src/hooks/useAttendance.ts`)
     - Accept `personId` and `DateRange` parameters
     - Validate date range with `isValidDateFormat` and `isValidRange` before requesting
     - Call `portalApi.getAttendance()`, apply `sortAttendanceByDateDesc`
     - Manage view state and expose `retry()`
     - _Requirements: 4.1, 4.2, 4.3, 4.5, 4.7_
 
-  - [-] 7.3 Implement `useAnnouncements` hook (`src/hooks/useAnnouncements.ts`)
+  - [x] 7.3 Implement `useAnnouncements` hook (`src/hooks/useAnnouncements.ts`)
     - Call `portalApi.getAnnouncements()`, apply `sortAnnouncementsByPublishedDesc`
     - Manage view state and expose `retry()`
     - _Requirements: 5.1, 5.3, 5.4, 5.5_
 
-  - [-] 7.4 Implement `useNotifications` hook (`src/hooks/useNotifications.ts`)
+  - [x] 7.4 Implement `useNotifications` hook (`src/hooks/useNotifications.ts`)
     - Page size 20; provide `loadMore()` to fetch next page
     - Apply `sortNotificationsByEffectiveDateDesc`
     - Retain previously loaded notifications on error
     - Manage view state and expose `retry()`
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
 
-  - [~] 7.5 Implement `useLeaveRequests` hook (`src/hooks/useLeaveRequests.ts`)
+  - [x] 7.5 Implement `useLeaveRequests` hook (`src/hooks/useLeaveRequests.ts`)
     - Provide `submit(input)` that validates with `validateLeaveSubmit` before sending
     - Call `leaveApi.list()` and `leaveApi.submit()`
     - Manage view state and expose `retry()`
     - _Requirements: 7.1, 7.3, 7.5, 7.6, 7.7, 7.8_
 
-- [ ] 8. Implement page views
-  - [~] 8.1 Implement LoginPage (`src/pages/LoginPage.tsx`)
+- [x] 8. Implement page views
+  - [x] 8.1 Implement LoginPage (`src/pages/LoginPage.tsx`)
     - Email, password, organization fields with client-side validation via `validateLoginFields`
     - On rejection: retain email + organization, clear password, show error
     - Handle 30s auth timeout with service-unreachable message
     - _Requirements: 2.1, 2.2, 2.6, 2.7_
 
-  - [~] 8.2 Implement HomePage / Presence view (`src/pages/HomePage.tsx`)
+  - [x] 8.2 Implement HomePage / Presence view (`src/pages/HomePage.tsx`)
     - Use `useChildren` hook; display each child with name and derived presence status
     - Show loading indicator, empty state, or error+retry as appropriate
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [~] 8.3 Implement AttendancePage (`src/pages/AttendancePage.tsx`)
+  - [x] 8.3 Implement AttendancePage (`src/pages/AttendancePage.tsx`)
     - Child selector + start/end date inputs
     - Client-side date format and range validation with inline error messages
     - Display records ordered by date descending with date and status
     - Empty state, error+retry, retain selections on failure
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
-  - [~] 8.4 Implement AnnouncementsPage (`src/pages/AnnouncementsPage.tsx`)
+  - [x] 8.4 Implement AnnouncementsPage (`src/pages/AnnouncementsPage.tsx`)
     - Display title, body, published date for each announcement, most-recent first
     - Loading indicator, empty state, error+retry
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-  - [~] 8.5 Implement NotificationsPage (`src/pages/NotificationsPage.tsx`)
+  - [x] 8.5 Implement NotificationsPage (`src/pages/NotificationsPage.tsx`)
     - Display title, body, and effective date (sent_at or created_at fallback)
     - Load-more control for pagination (page size 20)
     - Retain previously loaded notifications on error
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
 
-  - [~] 8.6 Implement LeaveRequestsPage (`src/pages/LeaveRequestsPage.tsx`)
+  - [x] 8.6 Implement LeaveRequestsPage (`src/pages/LeaveRequestsPage.tsx`)
     - Submission form: person selector, start date, end date, reason
     - Client-side validation with `validateLeaveSubmit`; inline error messages
     - On success: confirmation message, clear form, show request as Pending in list
@@ -243,15 +243,15 @@ Build a new, isolated parent-facing single-page application (`parent-app/`) usin
     - Empty state when no requests exist
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8_
 
-- [ ] 9. Implement responsive layout and mobile-first styling
-  - [~] 9.1 Add global styles and responsive layout (`src/index.css` or equivalent)
+- [x] 9. Implement responsive layout and mobile-first styling
+  - [x] 9.1 Add global styles and responsive layout (`src/index.css` or equivalent)
     - Single-column layout for viewports 320–767px (mobile)
     - Appropriate layout for viewports ≥768px (desktop)
     - No horizontal scrolling at any viewport width
     - Navigation touch targets ≥44×44px
     - _Requirements: 8.1, 8.2, 8.7_
 
-- [~] 10. Final checkpoint - Ensure all tests pass
+- [x] 10. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

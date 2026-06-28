@@ -41,13 +41,17 @@ export interface Paginated<T> {
 export const authApi = {
   /** Authenticate with email, password, and organization name. */
   async login(input: LoginInput): Promise<LoginResponse> {
+    const body: Record<string, string> = {
+      email: input.email,
+      password: input.password,
+      organization_name: input.organization_name,
+    };
+    if (input.organization_id) {
+      body.organization_id = input.organization_id;
+    }
     const response = await apiClient.post<LoginResponse>(
       '/api/auth/login',
-      {
-        email: input.email,
-        password: input.password,
-        organization_name: input.organization_name,
-      },
+      body,
       { timeout: TIMEOUT_DEFAULT },
     );
     return response.data;

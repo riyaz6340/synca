@@ -1,0 +1,292 @@
+/**
+ * Global styles for parent-app.
+ *
+ * Mobile-first responsive layout:
+ * - Single-column for viewports 320–767px
+ * - Wider layout for viewports ≥768px
+ * - No horizontal scrolling at any viewport width
+ * - Navigation touch targets ≥44×44px
+ *
+ * Validates: Requirements 8.1, 8.2, 8.7
+ */
+
+/* ===== CSS Reset / Normalization ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+li,
+figure,
+figcaption,
+blockquote,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #1e293b;
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ===== Global Typography & Colors ===== */
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+}
+
+h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== Mobile-First Layout (320–767px) ===== */
+main {
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem;
+}
+
+/* ===== Desktop Layout (≥768px) ===== */
+@media (min-width: 768px) {
+  main:not(.admin-main) {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* ===== Navigation Touch Targets (≥44×44px) ===== */
+nav a,
+nav button {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+/* ===== Form Field Styling ===== */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.form-field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='date'],
+input[type='number'],
+textarea,
+select {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: #dc2626;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+/* ===== Buttons ===== */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #2563eb;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+/* ===== Login Page ===== */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: #f8fafc;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 24rem;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.login-container h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-container button[type='submit'] {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* ===== Error Styling ===== */
+.field-error {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+.api-error {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #991b1b;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+}
+
+/* ===== Utility Classes ===== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

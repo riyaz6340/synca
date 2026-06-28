@@ -1,12 +1,12 @@
 /**
  * Auth Context — owns token state, login/logout, session restoration via
- * refresh, and exposes auth status to ProtectedRoute.
+ * refresh, and exposes auth status + user role to ProtectedRoute.
  *
  * Validates: Requirements 2.1, 2.4, 2.5
  */
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import type { ParentUser } from '../api/types';
+import type { AppUser, AppRole } from '../api/types';
 import { authApi } from '../api/endpoints';
 import { setToken, clearToken, getToken } from '../api/client';
 
@@ -16,10 +16,11 @@ import { setToken, clearToken, getToken } from '../api/client';
 
 interface AuthContextType {
   token: string | null;
-  user: ParentUser | null;
+  user: AppUser | null;
+  role: AppRole | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, organization: string) => Promise<void>;
+  login: (email: string, password: string, organizationName: string, organizationId?: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -38,13 +39,14 @@ const USER_KEY = 'parent_app_user';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [user, setUser] = useState<ParentUser | null>(() => {
+  const [user, setUser] = useState<AppUser | null>(() => {
     const stored = localStorage.getItem(USER_KEY);
     return stored ? JSON.parse(stored) : null;
   });
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = token !== null;
+  const role: AppRole | null = user?.role ?? null;
 
   // On mount: attempt silent refresh if a stored token exists (Req 2.4)
   useEffect(() => {
@@ -76,11 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // login: call authApi.login, store token on success (Req 2.1)
-  const login = useCallback(async (email: string, password: string, organization: string) => {
+  const login = useCallback(async (email: string, password: string, organizationName: string, organizationId?: string) => {
     const response = await authApi.login({
       email,
       password,
-      organization_name: organization,
+      organization_name: organizationName,
+      organization_id: organizationId,
     });
 
     const { token: newToken, user: newUser } = response;
@@ -114,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, user, isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ token, user, role, isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

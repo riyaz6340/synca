@@ -1,18 +1,24 @@
 /**
- * ProtectedRoute — guards authenticated routes by checking auth state.
+ * ProtectedRoute — guards authenticated routes by checking auth state and role.
  *
  * - Shows a loading indicator while auth check is in progress.
  * - Redirects unauthenticated users to the login page.
- * - Renders nested routes (via Outlet) for authenticated users.
+ * - Optionally checks user role against allowedRoles.
+ * - Renders nested routes (via Outlet) for authorized users.
  *
  * Validates: Requirements 2.5
  */
 
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import type { AppRole } from '../api/types';
 
-export default function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+interface ProtectedRouteProps {
+  allowedRoles?: AppRole[];
+}
+
+export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -23,6 +29,10 @@ export default function ProtectedRoute() {
   }
 
   if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return <Navigate to="/login" replace />;
   }
 

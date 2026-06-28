@@ -9,6 +9,16 @@ export const ALLOWED_PREFIXES = [
   '/api/auth',
   '/api/portal',
   '/api/leave-requests',
+  '/api/organization',
+  '/api/persons',
+  '/api/groups',
+  '/api/attendance',
+  '/api/notifications',
+  '/api/announcements',
+  '/api/reports',
+  '/api/holidays',
+  '/api/super-admin',
+  '/api/channels',
 ] as const;
 
 /**

@@ -29,31 +29,34 @@ export function useNotifications(): UseNotificationsResult {
   const [state, setState] = useState<ViewState<Notification[]>>({ status: 'loading' });
   const [hasMore, setHasMore] = useState(false);
   const pageRef = useRef(1);
-  const isInitialLoadRef = useRef(true);
+  const loadedRef = useRef(false);
 
-  const fetchPage = useCallback(async (page: number, isInitial: boolean) => {
-    setState(isInitial ? { status: 'loading' } : (prev) => prev);
+  const fetchPage = useCallback(async (page: number) => {
+    const isInitial = !loadedRef.current;
+
+    if (isInitial) {
+      setState({ status: 'loading' });
+    }
 
     try {
       const result = await portalApi.getNotifications(page, PAGE_SIZE);
-      const newNotifications = result.data;
+      const newItems = result.data;
+      const totalPages = result.pagination.totalPages;
 
       setNotifications((prev) => {
-        const accumulated = isInitial ? newNotifications : [...prev, ...newNotifications];
-        const sorted = sortNotificationsByEffectiveDateDesc(accumulated);
-        return sorted;
+        const accumulated = isInitial ? newItems : [...prev, ...newItems];
+        return sortNotificationsByEffectiveDateDesc(accumulated);
       });
 
-      const totalPages = result.pagination.totalPages;
       setHasMore(page < totalPages);
       pageRef.current = page;
-      isInitialLoadRef.current = false;
+      loadedRef.current = true;
 
-      // Determine state after accumulation
-      if (isInitial && newNotifications.length === 0) {
+      // Determine success vs empty for the initial load
+      if (isInitial && newItems.length === 0) {
         setState({ status: 'empty' });
       } else {
-        // We use a callback to get the latest accumulated value
+        // Use a micro-task to ensure setNotifications has applied
         setNotifications((current) => {
           setState({ status: 'success', data: current });
           return current;
@@ -63,35 +66,27 @@ export function useNotifications(): UseNotificationsResult {
       const message =
         error instanceof Error ? error.message : 'Notifications could not be loaded';
 
-      if (isInitial && notifications.length === 0) {
-        // No previous data — show error state
-        setState({ status: 'error', message });
-      } else {
-        // Retain previously loaded notifications on error (Req 6.6)
-        setState({ status: 'error', message });
-      }
+      // Retain previously loaded notifications on error (Req 6.6)
+      setState({ status: 'error', message });
     }
   }, []);
 
   useEffect(() => {
-    fetchPage(1, true);
+    fetchPage(1);
   }, [fetchPage]);
 
   const loadMore = useCallback(() => {
     if (!hasMore) return;
-    const nextPage = pageRef.current + 1;
-    fetchPage(nextPage, false);
+    fetchPage(pageRef.current + 1);
   }, [hasMore, fetchPage]);
 
   const retry = useCallback(() => {
-    if (isInitialLoadRef.current) {
-      // Retry from the beginning
-      setNotifications([]);
-      fetchPage(1, true);
+    if (!loadedRef.current) {
+      // No data has been loaded yet — retry initial load
+      fetchPage(1);
     } else {
-      // Retry the last failed page
-      const retryPage = pageRef.current + 1;
-      fetchPage(retryPage, false);
+      // Retry loading the next page
+      fetchPage(pageRef.current + 1);
     }
   }, [fetchPage]);
 
