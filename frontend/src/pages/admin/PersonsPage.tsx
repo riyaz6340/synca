@@ -112,6 +112,7 @@ export default function PersonsPage() {
 
   async function handleSave() {
     if (!form.name.trim()) { alert('Student name is required'); return }
+    if (!form.admission_number.trim()) { alert('Admission number is required'); return }
     if (!form.parent_mobile.trim()) { alert('Parent/Guardian mobile number is required'); return }
     setSaving(true)
     try {
@@ -277,8 +278,8 @@ export default function PersonsPage() {
             </div>
             <div style={gridThree}>
               <div>
-                <label style={labelStyle}>Admission No.</label>
-                <input style={inputStyle} value={form.admission_number} onChange={(e) => setForm({ ...form, admission_number: e.target.value })} placeholder="e.g. 2024-042" />
+                <label style={labelStyle}>Admission No. *</label>
+                <input style={inputStyle} value={form.admission_number} onChange={(e) => setForm({ ...form, admission_number: e.target.value })} placeholder="e.g. 2024-042" required />
               </div>
               <div>
                 <label style={labelStyle}>Date of Birth</label>

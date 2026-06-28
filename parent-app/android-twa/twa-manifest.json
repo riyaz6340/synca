@@ -1,0 +1,20 @@
+{
+  "packageId": "com.avento.app",
+  "host": "synca-45ns.vercel.app",
+  "name": "Avento",
+  "launcherName": "Avento",
+  "display": "standalone",
+  "themeColor": "#4f46e5",
+  "navigationColor": "#000000",
+  "backgroundColor": "#ffffff",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://synca-45ns.vercel.app/icons/icon.svg",
+  "maskableIconUrl": "https://synca-45ns.vercel.app/icons/icon.svg",
+  "shortcuts": [],
+  "signing": {
+    "keyAlias": "avento-key",
+    "keyFullName": "CN=Avento App, O=Avento, L=IN, C=IN"
+  },
+  "generatorApp": "bubblewrap-cli"
+}

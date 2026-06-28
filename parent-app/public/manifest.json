@@ -1,0 +1,15 @@
+{
+  "name": "Avento - People Presence Platform",
+  "short_name": "Avento",
+  "description": "Track attendance, announcements, and leave requests",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icons/icon.svg", "sizes": "192x192", "type": "image/svg+xml" },
+    { "src": "/icons/icon.svg", "sizes": "512x512", "type": "image/svg+xml" }
+  ]
+}

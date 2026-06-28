@@ -228,6 +228,54 @@ router.post(
         return { person, groups, stakeholders: personStakeholders };
       });
 
+      // Auto-create or link parent account (non-blocking)
+      if (result.person.parent_mobile) {
+        void (async () => {
+          try {
+            const bcrypt = await import('bcrypt');
+            const mobile = result.person.parent_mobile.replace(/[^0-9]/g, '').slice(-10);
+            const loginId = result.person.admission_number || result.person.roll_number || result.person.id.substring(0, 8);
+
+            // Check if a stakeholder with same mobile already exists (sibling)
+            const existingStakeholder = await db('stakeholders')
+              .where('organization_id', req.organizationId)
+              .whereRaw("communication_channels::text LIKE ?", [`%${mobile}%`])
+              .first();
+
+            if (existingStakeholder) {
+              // Link this child to existing parent
+              await db('person_stakeholders')
+                .insert({ person_id: result.person.id, stakeholder_id: existingStakeholder.id, relationship: 'parent' })
+                .onConflict(['person_id', 'stakeholder_id']).ignore();
+            } else {
+              // Create new parent account
+              const pwd = `${loginId}@${mobile}`;
+              const passwordHash = await bcrypt.hash(pwd, 12);
+
+              const existingUser = await db('users').where({ email: loginId, organization_id: req.organizationId }).first();
+              if (!existingUser) {
+                const [parentUser] = await db('users')
+                  .insert({ organization_id: req.organizationId, email: loginId, password_hash: passwordHash, role: 'Stakeholder' })
+                  .returning('*');
+
+                const parentName = result.person.guardian_name || result.person.father_name || `Parent of ${result.person.name}`;
+                const [stakeholder] = await db('stakeholders')
+                  .insert({
+                    organization_id: req.organizationId, user_id: parentUser.id, name: parentName,
+                    communication_channels: JSON.stringify([
+                      ...(result.person.parent_mobile ? [{ type: 'sms', config: { phone: result.person.parent_mobile }, priority: 1 }] : []),
+                    ]),
+                  }).returning('*');
+
+                await db('person_stakeholders')
+                  .insert({ person_id: result.person.id, stakeholder_id: stakeholder.id, relationship: 'parent' })
+                  .onConflict(['person_id', 'stakeholder_id']).ignore();
+              }
+            }
+          } catch { /* non-critical */ }
+        })();
+      }
+
       res.status(201).json(result);
     } catch (error) {
       // Handle custom validation errors from transaction

@@ -132,9 +132,9 @@ export default function AnnouncementsPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Announcements</h1>
-        <button onClick={openCreate} style={btnPrimary}>+ Create Announcement</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.3rem', margin: 0 }}>Announcements</h1>
+        <button onClick={openCreate} style={{ ...btnPrimary, padding: '0.6rem 1rem', fontSize: '0.85rem' }}>+ Create</button>
       </div>
 
       <table style={tableStyle}>
