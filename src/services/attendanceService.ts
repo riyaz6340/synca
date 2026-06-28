@@ -7,6 +7,8 @@ export interface RecordAttendanceInput {
   date: string;
   presenceStatus: string;
   recordedBy: string;
+  subjectId?: string;
+  periodLabel?: string;
 }
 
 export interface AttendanceRecord {
@@ -80,6 +82,8 @@ function triggerStakeholderNotifications(
  */
 export async function recordAttendance(input: RecordAttendanceInput): Promise<AttendanceRecord> {
   const now = new Date();
+  const subjectId = input.subjectId || null;
+  const periodLabel = input.periodLabel || 'Full Day';
 
   const [record] = await db('attendance_records')
     .insert({
@@ -89,13 +93,16 @@ export async function recordAttendance(input: RecordAttendanceInput): Promise<At
       time: now,
       presence_status: input.presenceStatus,
       recorded_by: input.recordedBy,
+      subject_id: subjectId,
+      period_label: periodLabel,
     })
-    .onConflict(['person_id', 'date'])
+    .onConflict(db.raw('(person_id, date, COALESCE(subject_id, \'00000000-0000-0000-0000-000000000000\'))'))
     .merge({
       presence_status: input.presenceStatus,
       time: now,
       recorded_by: input.recordedBy,
       organization_id: input.organizationId,
+      period_label: periodLabel,
       updated_at: now,
     })
     .returning('*');

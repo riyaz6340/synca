@@ -17,6 +17,7 @@ import channelsRouter from './routes/channels';
 import superAdminRouter from './routes/superAdmin';
 import holidaysRouter from './routes/holidays';
 import pushRouter from './routes/push';
+import subjectsRouter from './routes/subjects';
 import { authRateLimiter } from './middleware/rateLimiter';
 
 const app = express();
@@ -98,6 +99,7 @@ app.use('/api/channels', channelsRouter);
 app.use('/api/super-admin', superAdminRouter);
 app.use('/api/holidays', holidaysRouter);
 app.use('/api/push', pushRouter);
+app.use('/api/subjects', subjectsRouter);
 
 // Global error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

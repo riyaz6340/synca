@@ -101,7 +101,7 @@ router.post(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { person_id, date, presence_status } = req.body;
+    const { person_id, date, presence_status, subject_id, period_label } = req.body;
 
     // Validate required fields
     if (!person_id) {
@@ -150,6 +150,8 @@ router.post(
         date,
         presenceStatus: presence_status,
         recordedBy: req.user!.user_id,
+        subjectId: subject_id || undefined,
+        periodLabel: period_label || 'Full Day',
       });
 
       res.status(201).json({ attendance: record });
@@ -303,6 +305,38 @@ router.get(
     } catch (error) {
       throw error;
     }
+  }
+);
+
+/**
+ * GET /marked-dates — Get dates that have attendance records for a class in a given month.
+ * Query: group_id, year, month
+ */
+router.get(
+  '/marked-dates',
+  authenticate,
+  tenantIsolation,
+  authorize('Admin'),
+  async (req: Request, res: Response): Promise<void> => {
+    const { group_id, year, month } = req.query;
+    if (!group_id || !year || !month) {
+      res.status(400).json({ error: 'group_id, year, and month are required' });
+      return;
+    }
+
+    const startDate = `${year}-${String(Number(month)).padStart(2, '0')}-01`;
+    const lastDay = new Date(Number(year), Number(month), 0).getDate();
+    const endDate = `${year}-${String(Number(month)).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+    const dates = await db('attendance_records')
+      .join('person_groups', 'attendance_records.person_id', 'person_groups.person_id')
+      .where('person_groups.group_id', group_id as string)
+      .where('attendance_records.organization_id', req.organizationId)
+      .whereBetween('attendance_records.date', [startDate, endDate])
+      .select('attendance_records.date')
+      .distinct();
+
+    res.json({ marked_dates: dates.map(d => d.date) });
   }
 );
 
