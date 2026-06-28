@@ -31,13 +31,16 @@ const emptyForm: AnnouncementForm = {
 export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [groups, setGroups] = useState<{ id: string; name: string }[]>([])
-  const [persons, setPersons] = useState<{ id: string; name: string }[]>([])
+  const [persons, setPersons] = useState<{ id: string; name: string; roll_number?: string; group_name?: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<AnnouncementForm>(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [personSearch, setPersonSearch] = useState('')
+  const [selectedPersons, setSelectedPersons] = useState<{ id: string; name: string; roll_number?: string }[]>([])
+  const [showPersonDropdown, setShowPersonDropdown] = useState(false)
 
   const fetchAnnouncements = useCallback(async () => {
     try {
@@ -64,6 +67,8 @@ export default function AnnouncementsPage() {
   function openCreate() {
     setEditingId(null)
     setForm(emptyForm)
+    setSelectedPersons([])
+    setPersonSearch('')
     setShowModal(true)
   }
 
@@ -196,25 +201,75 @@ export default function AnnouncementsPage() {
             </select>
             {form.target_type !== 'Organization' && (
               <>
-                <label style={labelStyle}>
-                  {form.target_type === 'Group' ? 'Select Class' : 'Select Students'}
-                </label>
-                <select
-                  style={inputStyle}
-                  value={form.target_ids}
-                  onChange={(e) => setForm({ ...form, target_ids: e.target.value })}
-                >
-                  <option value="">Select...</option>
-                  {form.target_type === 'Group' && groups.map(g => (
-                    <option key={g.id} value={g.id}>{g.name}</option>
-                  ))}
-                  {form.target_type === 'Person' && persons.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-                <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: '0.25rem 0 0' }}>
-                  For multiple selections, use comma-separated IDs or select one at a time
-                </p>
+                {form.target_type === 'Group' && (
+                  <>
+                    <label style={labelStyle}>Select Class</label>
+                    <select style={inputStyle} value={form.target_ids} onChange={(e) => setForm({ ...form, target_ids: e.target.value })}>
+                      <option value="">Select a class...</option>
+                      {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                    </select>
+                  </>
+                )}
+                {form.target_type === 'Person' && (
+                  <>
+                    <label style={labelStyle}>Select Students</label>
+                    {/* Selected students chips */}
+                    {selectedPersons.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginBottom: '0.5rem' }}>
+                        {selectedPersons.map(p => (
+                          <span key={p.id} style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            {p.name} {p.roll_number && `(${p.roll_number})`}
+                            <button onClick={() => { setSelectedPersons(selectedPersons.filter(s => s.id !== p.id)); setForm({ ...form, target_ids: selectedPersons.filter(s => s.id !== p.id).map(s => s.id).join(',') }) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: '0.9rem', padding: 0 }}>×</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {/* Searchable input */}
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        style={inputStyle}
+                        type="text"
+                        placeholder="Search by name or roll number..."
+                        value={personSearch}
+                        onChange={(e) => { setPersonSearch(e.target.value); setShowPersonDropdown(true) }}
+                        onFocus={() => setShowPersonDropdown(true)}
+                      />
+                      {showPersonDropdown && personSearch.trim().length > 0 && (
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', marginTop: '2px', maxHeight: '180px', overflowY: 'auto', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                          {persons
+                            .filter(p => !selectedPersons.some(s => s.id === p.id))
+                            .filter(p => {
+                              const q = personSearch.toLowerCase()
+                              return p.name.toLowerCase().includes(q) || (p.roll_number && p.roll_number.toLowerCase().includes(q))
+                            })
+                            .slice(0, 10)
+                            .map(p => (
+                              <div
+                                key={p.id}
+                                onClick={() => {
+                                  const newSelected = [...selectedPersons, p]
+                                  setSelectedPersons(newSelected)
+                                  setForm({ ...form, target_ids: newSelected.map(s => s.id).join(',') })
+                                  setPersonSearch('')
+                                  setShowPersonDropdown(false)
+                                }}
+                                style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', borderBottom: '1px solid #f8fafc', fontSize: '0.85rem' }}
+                              >
+                                <strong>{p.name}</strong>
+                                <span style={{ color: '#64748b', fontSize: '0.75rem', marginLeft: '0.5rem' }}>
+                                  {p.roll_number ? `Roll: ${p.roll_number}` : ''} {p.group_name ? `| ${p.group_name}` : ''}
+                                </span>
+                              </div>
+                            ))
+                          }
+                          {persons.filter(p => !selectedPersons.some(s => s.id === p.id)).filter(p => p.name.toLowerCase().includes(personSearch.toLowerCase()) || (p.roll_number && p.roll_number.toLowerCase().includes(personSearch.toLowerCase()))).length === 0 && (
+                            <div style={{ padding: '0.5rem', color: '#94a3b8', fontSize: '0.8rem' }}>No students found</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
             <label style={labelStyle}>Schedule At (optional)</label>
