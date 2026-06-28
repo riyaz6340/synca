@@ -30,6 +30,8 @@ const emptyForm: AnnouncementForm = {
 
 export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [groups, setGroups] = useState<{ id: string; name: string }[]>([])
+  const [persons, setPersons] = useState<{ id: string; name: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -40,8 +42,14 @@ export default function AnnouncementsPage() {
   const fetchAnnouncements = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await apiClient.get('/announcements')
-      setAnnouncements(res.data.data ?? [])
+      const [annRes, groupsRes, personsRes] = await Promise.all([
+        apiClient.get('/announcements'),
+        apiClient.get('/groups'),
+        apiClient.get('/persons?limit=100'),
+      ])
+      setAnnouncements(annRes.data.data ?? [])
+      setGroups(groupsRes.data.groups ?? [])
+      setPersons(personsRes.data.data ?? [])
     } catch {
       setError('Failed to load announcements')
     } finally {
@@ -188,8 +196,25 @@ export default function AnnouncementsPage() {
             </select>
             {form.target_type !== 'Organization' && (
               <>
-                <label style={labelStyle}>Target IDs (comma-separated)</label>
-                <input style={inputStyle} value={form.target_ids} onChange={(e) => setForm({ ...form, target_ids: e.target.value })} placeholder="id1, id2, ..." />
+                <label style={labelStyle}>
+                  {form.target_type === 'Group' ? 'Select Class' : 'Select Students'}
+                </label>
+                <select
+                  style={inputStyle}
+                  value={form.target_ids}
+                  onChange={(e) => setForm({ ...form, target_ids: e.target.value })}
+                >
+                  <option value="">Select...</option>
+                  {form.target_type === 'Group' && groups.map(g => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
+                  {form.target_type === 'Person' && persons.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+                <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: '0.25rem 0 0' }}>
+                  For multiple selections, use comma-separated IDs or select one at a time
+                </p>
               </>
             )}
             <label style={labelStyle}>Schedule At (optional)</label>
