@@ -1,7 +1,21 @@
 import axios from 'axios'
 
+// Determine API URL: use env var if available, otherwise detect from current hostname
+function getApiUrl(): string {
+  // Vite env var (set at build time)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL
+  }
+  // If running on Vercel (not localhost), use the Render backend
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+    return 'https://avento-api.onrender.com/api'
+  }
+  // Local development
+  return 'http://localhost:3000/api'
+}
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: getApiUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
