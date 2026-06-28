@@ -40,6 +40,11 @@ interface PersonForm {
   metadata: string
 }
 
+interface Group {
+  id: string
+  name: string
+}
+
 const emptyForm: PersonForm = {
   name: '', roll_number: '', admission_number: '', age: '', gender: '',
   date_of_birth: '', blood_group: '', father_name: '', mother_name: '',
@@ -49,6 +54,8 @@ const emptyForm: PersonForm = {
 
 export default function PersonsPage() {
   const [persons, setPersons] = useState<Person[]>([])
+  const [groups, setGroups] = useState<Group[]>([])
+  const [selectedGroupId, setSelectedGroupId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -59,8 +66,12 @@ export default function PersonsPage() {
   const fetchPersons = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await apiClient.get('/persons')
-      setPersons(res.data.data ?? [])
+      const [personsRes, groupsRes] = await Promise.all([
+        apiClient.get('/persons'),
+        apiClient.get('/groups'),
+      ])
+      setPersons(personsRes.data.data ?? [])
+      setGroups(groupsRes.data.groups ?? [])
     } catch {
       setError('Failed to load students')
     } finally {
@@ -73,6 +84,7 @@ export default function PersonsPage() {
   function openCreate() {
     setEditingId(null)
     setForm(emptyForm)
+    setSelectedGroupId('')
     setShowModal(true)
   }
 
@@ -123,7 +135,15 @@ export default function PersonsPage() {
       if (editingId) {
         await apiClient.put(`/persons/${editingId}`, payload)
       } else {
-        await apiClient.post('/persons', payload)
+        const res = await apiClient.post('/persons', payload)
+        // If a class was selected, add the student to that class
+        if (selectedGroupId && res.data?.person?.id) {
+          try {
+            await apiClient.post(`/groups/${selectedGroupId}/members`, { person_ids: [res.data.person.id] })
+          } catch {
+            // Class assignment failed but student was created — not critical
+          }
+        }
       }
       setShowModal(false)
       void fetchPersons()
@@ -250,6 +270,15 @@ export default function PersonsPage() {
                 <input style={inputStyle} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Full name" />
               </div>
               <div>
+                <label style={labelStyle}>Class {!editingId && '*'}</label>
+                <select style={inputStyle} value={selectedGroupId} onChange={(e) => setSelectedGroupId(e.target.value)} disabled={!!editingId}>
+                  <option value="">Select Class</option>
+                  {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={gridTwo}>
+              <div>
                 <label style={labelStyle}>Gender</label>
                 <select style={inputStyle} value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
                   <option value="">Select</option>
@@ -258,12 +287,12 @@ export default function PersonsPage() {
                   <option value="Other">Other</option>
                 </select>
               </div>
-            </div>
-            <div style={gridThree}>
               <div>
                 <label style={labelStyle}>Roll Number</label>
                 <input style={inputStyle} value={form.roll_number} onChange={(e) => setForm({ ...form, roll_number: e.target.value })} placeholder="e.g. 042" />
               </div>
+            </div>
+            <div style={gridThree}>
               <div>
                 <label style={labelStyle}>Admission No.</label>
                 <input style={inputStyle} value={form.admission_number} onChange={(e) => setForm({ ...form, admission_number: e.target.value })} placeholder="e.g. 2024-042" />
@@ -272,8 +301,6 @@ export default function PersonsPage() {
                 <label style={labelStyle}>Date of Birth</label>
                 <input style={inputStyle} type="date" value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} />
               </div>
-            </div>
-            <div style={gridThree}>
               <div>
                 <label style={labelStyle}>Age</label>
                 <input style={inputStyle} type="number" min="1" max="100" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} />
