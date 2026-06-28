@@ -4,7 +4,7 @@ import apiClient from '../api/client'
 export interface User {
   id: string
   email: string
-  role: 'Admin' | 'Stakeholder'
+  role: 'Admin' | 'Stakeholder' | 'SuperAdmin'
   organization_id: string
 }
 

@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 interface ProtectedRouteProps {
-  allowedRoles?: ('Admin' | 'Stakeholder')[]
+  allowedRoles?: string[]
 }
 
 export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
