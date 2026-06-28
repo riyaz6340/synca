@@ -43,6 +43,43 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// One-time setup endpoint — seeds the database with initial data
+// Remove this after first use in production for security
+app.get('/api/setup-seed', async (_req, res) => {
+  try {
+    const bcrypt = await import('bcrypt');
+    const db = (await import('./config/database')).default;
+
+    // Check if already seeded
+    const existingOrg = await db('organizations').where('name', 'Demo School').first();
+    if (existingOrg) {
+      res.json({ message: 'Already seeded', org_id: existingOrg.id });
+      return;
+    }
+
+    // Create Demo School
+    const [org] = await db('organizations').insert({ name: 'Demo School', industry_module: 'school', metadata: '{}' }).returning('*');
+
+    // Create Admin
+    const adminHash = await bcrypt.hash('Admin@123456', 12);
+    const [admin] = await db('users').insert({ organization_id: org.id, email: 'admin@demo.school', password_hash: adminHash, role: 'Admin' }).returning('*');
+
+    // Create Avento Platform org + SuperAdmin
+    const [platformOrg] = await db('organizations').insert({ name: 'Avento Platform', industry_module: 'platform', metadata: '{}' }).returning('*');
+    const founderHash = await bcrypt.hash('Founder@2024', 12);
+    await db('users').insert({ organization_id: platformOrg.id, email: 'founder@avento.app', password_hash: founderHash, role: 'SuperAdmin' });
+
+    res.json({
+      message: 'Database seeded successfully!',
+      admin: { email: 'admin@demo.school', password: 'Admin@123456', org: org.name, org_id: org.id },
+      founder: { email: 'founder@avento.app', password: 'Founder@2024', org: 'Avento Platform' },
+      admin_user_id: admin.id,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Seed failed', details: (error as Error).message });
+  }
+});
+
 // Routes
 app.use('/api/auth', authRateLimiter, authRouter);
 app.use('/api/organization', organizationRouter);
