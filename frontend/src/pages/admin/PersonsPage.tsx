@@ -206,53 +206,36 @@ export default function PersonsPage() {
         <button onClick={openCreate} style={btnPrimary}>+ Add Student</button>
       </div>
 
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Name</th>
-            <th style={thStyle}>Roll No.</th>
-            <th style={thStyle}>Father&apos;s Name</th>
-            <th style={thStyle}>Mobile</th>
-            <th style={thStyle}>Status</th>
-            <th style={thStyle}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {persons.map((p) => (
-            <tr key={p.id}>
-              <td style={tdStyle}>
-                <strong>{p.name}</strong>
-                {p.admission_number && <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Adm: {p.admission_number}</span>}
-              </td>
-              <td style={tdStyle}>{p.roll_number || '—'}</td>
-              <td style={tdStyle}>{p.father_name || '—'}</td>
-              <td style={tdStyle}>{p.parent_mobile || '—'}</td>
-              <td style={tdStyle}>
-                <span style={{ color: p.is_active ? '#16a34a' : '#dc2626' }}>
-                  {p.is_active ? 'Active' : 'Inactive'}
-                </span>
-              </td>
-              <td style={tdStyle}>
-                <button onClick={() => openEdit(p)} style={btnSmall}>Edit</button>
-                {p.is_active && (
-                  <button onClick={() => void handleDeactivate(p.id)} style={{ ...btnSmall, color: '#dc2626', marginLeft: '0.5rem' }}>
-                    Deactivate
-                  </button>
-                )}
-                <button onClick={() => void handleCreateParent(p.id)} style={{ ...btnSmall, color: '#2563eb', marginLeft: '0.5rem' }}>
-                  Parent A/C
-                </button>
-                <button onClick={() => void handleResetParentPwd(p.id)} style={{ ...btnSmall, color: '#d97706', marginLeft: '0.5rem' }}>
-                  Reset Pwd
-                </button>
-                <button onClick={() => void handleDelete(p.id, p.name)} style={{ ...btnSmall, color: '#991b1b', marginLeft: '0.5rem' }}>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Student Cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {persons.map((p) => (
+          <div key={p.id} style={studentCard}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <strong style={{ fontSize: '0.95rem' }}>{p.name}</strong>
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.2rem', fontSize: '0.75rem', color: '#64748b' }}>
+                  {p.roll_number && <span>Roll: {p.roll_number}</span>}
+                  {p.admission_number && <span>Adm: {p.admission_number}</span>}
+                </div>
+              </div>
+              <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.4rem', borderRadius: '10px', background: p.is_active ? '#dcfce7' : '#fee2e2', color: p.is_active ? '#166534' : '#991b1b', fontWeight: 600 }}>
+                {p.is_active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.4rem', fontSize: '0.78rem', color: '#475569' }}>
+              {p.father_name && <span>👨 {p.father_name}</span>}
+              {p.parent_mobile && <span>📱 {p.parent_mobile}</span>}
+            </div>
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+              <button onClick={() => openEdit(p)} style={actionBtn}>✏️ Edit</button>
+              <button onClick={() => void handleCreateParent(p.id)} style={{ ...actionBtn, color: '#2563eb' }}>👪 Parent</button>
+              <button onClick={() => void handleResetParentPwd(p.id)} style={{ ...actionBtn, color: '#d97706' }}>🔑 Reset</button>
+              {p.is_active && <button onClick={() => void handleDeactivate(p.id)} style={{ ...actionBtn, color: '#dc2626' }}>⏸ Deactivate</button>}
+              <button onClick={() => void handleDelete(p.id, p.name)} style={{ ...actionBtn, color: '#991b1b' }}>🗑</button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {persons.length === 0 && <p style={{ color: '#64748b', marginTop: '1rem' }}>No students found. Click &quot;+ Add Student&quot; to add one.</p>}
 
@@ -386,12 +369,11 @@ export default function PersonsPage() {
   )
 }
 
-const btnPrimary: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }
-const btnSecondary: React.CSSProperties = { background: '#e2e8f0', color: '#334155', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }
+const btnPrimary: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500 }
+const btnSecondary: React.CSSProperties = { background: '#e2e8f0', color: '#334155', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }
 const btnSmall: React.CSSProperties = { background: 'transparent', border: '1px solid #cbd5e1', padding: '0.25rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }
-const thStyle: React.CSSProperties = { textAlign: 'left', padding: '0.5rem', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase' }
-const tdStyle: React.CSSProperties = { padding: '0.5rem', borderBottom: '1px solid #f1f5f9' }
+const studentCard: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.75rem 1rem' }
+const actionBtn: React.CSSProperties = { background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.3rem 0.5rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.72rem', color: '#475569' }
 const overlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }
 const modalStyle: React.CSSProperties = { background: '#fff', borderRadius: '8px', padding: '1.5rem', width: '100%', maxWidth: '650px', maxHeight: '85vh', overflowY: 'auto' }
 const labelStyle: React.CSSProperties = { display: 'block', marginBottom: '0.25rem', fontSize: '0.8rem', color: '#475569', fontWeight: 500 }
