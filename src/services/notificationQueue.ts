@@ -1,4 +1,4 @@
-import { notificationQueue } from '../config/queue';
+import { notificationQueue, redisEnabled } from '../config/queue';
 
 export interface NotificationJobData {
   stakeholderId: string;
@@ -9,6 +9,11 @@ export interface NotificationJobData {
 }
 
 export async function enqueueNotification(data: NotificationJobData): Promise<void> {
+  // Skip if Redis is not configured (web push still works without it)
+  if (!redisEnabled || !notificationQueue) {
+    return;
+  }
+
   try {
     await notificationQueue.add('send-notification', data, {
       attempts: 3,
@@ -18,7 +23,6 @@ export async function enqueueNotification(data: NotificationJobData): Promise<vo
       },
     });
   } catch (error) {
-    // Log but don't throw — notification queue failures shouldn't break the main request
-    console.warn('[NotificationQueue] Failed to enqueue notification (Redis may be unavailable):', (error as Error).message);
+    console.warn('[NotificationQueue] Failed to enqueue:', (error as Error).message);
   }
 }
