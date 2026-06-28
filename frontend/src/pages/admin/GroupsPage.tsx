@@ -40,6 +40,10 @@ export default function GroupsPage() {
   const [memberSearch, setMemberSearch] = useState('')
   const [memberListSearch, setMemberListSearch] = useState('')
   const [showMemberDropdown, setShowMemberDropdown] = useState(false)
+  // Subjects
+  const [subjectsGroup, setSubjectsGroup] = useState<Group | null>(null)
+  const [subjects, setSubjects] = useState<{ id: string; name: string; teacher_name?: string; period_number?: number }[]>([])
+  const [newSubject, setNewSubject] = useState({ name: '', teacher_name: '', period_number: '' })
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -145,6 +149,31 @@ export default function GroupsPage() {
     }
   }
 
+  async function openSubjects(group: Group) {
+    setSubjectsGroup(group)
+    try {
+      const res = await apiClient.get('/subjects', { params: { group_id: group.id } })
+      setSubjects(res.data.subjects ?? [])
+    } catch { setSubjects([]) }
+  }
+
+  async function addSubject() {
+    if (!subjectsGroup || !newSubject.name.trim()) { alert('Subject name is required'); return }
+    try {
+      await apiClient.post('/subjects', { group_id: subjectsGroup.id, name: newSubject.name, teacher_name: newSubject.teacher_name || null, period_number: newSubject.period_number ? parseInt(newSubject.period_number) : null })
+      setNewSubject({ name: '', teacher_name: '', period_number: '' })
+      void openSubjects(subjectsGroup)
+    } catch { alert('Failed to add subject') }
+  }
+
+  async function deleteSubject(id: string) {
+    if (!confirm('Delete this subject?')) return
+    try {
+      await apiClient.delete(`/subjects/${id}`)
+      if (subjectsGroup) void openSubjects(subjectsGroup)
+    } catch { alert('Failed to delete') }
+  }
+
   if (loading) return <p>Loading groups...</p>
   if (error) return <p style={{ color: 'red' }}>{error}</p>
 
@@ -173,6 +202,7 @@ export default function GroupsPage() {
               <td style={tdStyle}>
                 <button onClick={() => openEdit(g)} style={btnSmall}>Edit</button>
                 <button onClick={() => void openManageMembers(g)} style={{ ...btnSmall, marginLeft: '0.5rem' }}>Members</button>
+                <button onClick={() => void openSubjects(g)} style={{ ...btnSmall, marginLeft: '0.5rem', color: '#7c3aed' }}>Subjects</button>
               </td>
             </tr>
           ))}
@@ -289,6 +319,43 @@ export default function GroupsPage() {
               <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{groupMembers.length} member{groupMembers.length !== 1 ? 's' : ''}</span>
               <button onClick={() => { setManagingGroup(null); setMemberSearch(''); setMemberListSearch('') }} style={btnSecondary}>Close</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Subjects Modal */}
+      {subjectsGroup && (
+        <div style={overlayStyle}>
+          <div style={{ ...modalStyle, maxWidth: '500px' }}>
+            <h2 style={{ marginTop: 0 }}>📚 Subjects: {subjectsGroup.name}</h2>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1rem' }}>Add subjects/periods for this class. These appear when marking period-wise attendance.</p>
+
+            {/* Add Subject Form */}
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              <input style={{ ...inputStyle, flex: 2, minWidth: '120px' }} placeholder="Subject name (e.g. Maths)" value={newSubject.name} onChange={e => setNewSubject({ ...newSubject, name: e.target.value })} />
+              <input style={{ ...inputStyle, flex: 1, minWidth: '100px' }} placeholder="Teacher (optional)" value={newSubject.teacher_name} onChange={e => setNewSubject({ ...newSubject, teacher_name: e.target.value })} />
+              <input style={{ ...inputStyle, width: '60px' }} type="number" placeholder="Period #" value={newSubject.period_number} onChange={e => setNewSubject({ ...newSubject, period_number: e.target.value })} />
+              <button onClick={() => void addSubject()} style={btnPrimary}>Add</button>
+            </div>
+
+            {/* Subject List */}
+            {subjects.length === 0 ? (
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>No subjects added yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                {subjects.map((s, i) => (
+                  <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div>
+                      <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{s.period_number ? `P${s.period_number}. ` : `${i+1}. `}{s.name}</span>
+                      {s.teacher_name && <span style={{ color: '#64748b', fontSize: '0.75rem', marginLeft: '0.5rem' }}>({s.teacher_name})</span>}
+                    </div>
+                    <button onClick={() => void deleteSubject(s.id)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: '1rem' }}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button onClick={() => setSubjectsGroup(null)} style={{ ...btnSecondary, marginTop: '1rem' }}>Close</button>
           </div>
         </div>
       )}
