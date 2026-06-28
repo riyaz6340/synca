@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "generate-icons": "node scripts/generate-icons.js",
-    "build": "node scripts/generate-icons.js && tsc && vite build",
+    "generate-icons": "node scripts/generate-icons.cjs",
+    "build": "node scripts/generate-icons.cjs && tsc && vite build",
     "preview": "vite preview",
     "test": "vitest --run",
     "test:watch": "vitest"
