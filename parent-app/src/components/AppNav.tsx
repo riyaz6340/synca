@@ -11,6 +11,7 @@ const navItems = [
   { to: '/announcements', label: 'Announcements' },
   { to: '/notifications', label: 'Notifications' },
   { to: '/leave', label: 'Leave' },
+  { to: '/change-password', label: '🔒' },
 ] as const
 
 export default function AppNav() {

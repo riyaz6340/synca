@@ -3,6 +3,7 @@ import { authenticate } from '../middleware/authenticate';
 import { tenantIsolation } from '../middleware/tenantIsolation';
 import { authorize } from '../middleware/authorize';
 import db from '../config/database';
+import { logAudit } from '../utils/auditLog';
 
 const router = Router();
 
@@ -276,6 +277,17 @@ router.post(
         })();
       }
 
+      // Audit log: person created
+      void logAudit({
+        organization_id: req.organizationId,
+        user_id: req.user!.user_id,
+        action: 'CREATE',
+        entity_type: 'person',
+        entity_id: result.person.id,
+        details: { name: result.person.name },
+        ip_address: req.ip,
+      });
+
       res.status(201).json(result);
     } catch (error) {
       // Handle custom validation errors from transaction
@@ -354,6 +366,17 @@ router.put(
         .update(updates)
         .returning('*');
 
+      // Audit log: person updated
+      void logAudit({
+        organization_id: req.organizationId,
+        user_id: req.user!.user_id,
+        action: 'UPDATE',
+        entity_type: 'person',
+        entity_id: id,
+        details: { updated_fields: Object.keys(updates).filter(k => k !== 'updated_at') },
+        ip_address: req.ip,
+      });
+
       res.status(200).json({ person: updatedPerson });
     } catch (error) {
       throw error;
@@ -390,6 +413,17 @@ router.patch(
         })
         .returning('*');
 
+      // Audit log: person deactivated
+      void logAudit({
+        organization_id: req.organizationId,
+        user_id: req.user!.user_id,
+        action: 'UPDATE',
+        entity_type: 'person',
+        entity_id: id,
+        details: { action: 'deactivate' },
+        ip_address: req.ip,
+      });
+
       res.status(200).json({
         message: 'Person deactivated successfully',
         person: updatedPerson,
@@ -422,6 +456,17 @@ router.delete(
       await db('persons')
         .where({ id, organization_id: req.organizationId })
         .del();
+
+      // Audit log: person deleted
+      void logAudit({
+        organization_id: req.organizationId,
+        user_id: req.user!.user_id,
+        action: 'DELETE',
+        entity_type: 'person',
+        entity_id: id,
+        details: { name: person.name },
+        ip_address: req.ip,
+      });
 
       res.status(200).json({ message: 'Person deleted successfully' });
     } catch (error) {

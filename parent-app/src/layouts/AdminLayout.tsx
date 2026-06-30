@@ -48,6 +48,19 @@ export default function AdminLayout() {
 
         <div style={{ padding: '1rem', borderTop: '1px solid #334155' }}>
           <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 0.5rem' }}>{user?.email}</p>
+          <NavLink
+            to="/change-password"
+            style={{
+              display: 'block',
+              fontSize: '0.8rem',
+              color: '#94a3b8',
+              textDecoration: 'none',
+              marginBottom: '0.5rem',
+              padding: '0.3rem 0',
+            }}
+          >
+            🔒 Change Password
+          </NavLink>
           <button onClick={() => void logout()} style={logoutBtnStyle}>
             Logout
           </button>

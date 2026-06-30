@@ -4,6 +4,7 @@ import { tenantIsolation } from '../middleware/tenantIsolation';
 import { authorize } from '../middleware/authorize';
 import db from '../config/database';
 import { recordAttendance, bulkRecordAttendance } from '../services/attendanceService';
+import { logAudit } from '../utils/auditLog';
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.post(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { group_id, date, presence_status } = req.body;
+    const { group_id, date, presence_status, records } = req.body;
 
     // Validate required fields
     if (!group_id) {
@@ -37,17 +38,27 @@ router.post(
       return;
     }
 
-    if (!presence_status) {
-      res.status(400).json({ error: 'presence_status is required' });
+    // Determine mode: per-student records payload vs. whole-group single status.
+    const hasRecords = Array.isArray(records) && records.length > 0;
+
+    if (records !== undefined && !Array.isArray(records)) {
+      res.status(400).json({ error: 'records must be an array' });
       return;
     }
 
-    // Validate presence_status value
-    if (!VALID_PRESENCE_STATUSES.includes(presence_status)) {
-      res.status(400).json({
-        error: `presence_status must be one of: ${VALID_PRESENCE_STATUSES.join(', ')}`,
-      });
-      return;
+    // In whole-group mode, presence_status is required and must be valid.
+    if (!hasRecords) {
+      if (!presence_status) {
+        res.status(400).json({ error: 'presence_status is required' });
+        return;
+      }
+
+      if (!VALID_PRESENCE_STATUSES.includes(presence_status)) {
+        res.status(400).json({
+          error: `presence_status must be one of: ${VALID_PRESENCE_STATUSES.join(', ')}`,
+        });
+        return;
+      }
     }
 
     try {
@@ -60,6 +71,75 @@ router.post(
         return;
       }
 
+      // ── Per-student mode ──────────────────────────────────────────────────
+      if (hasRecords) {
+        // Validate the shape and presence_status of each record up front.
+        for (const record of records) {
+          if (!record || typeof record !== 'object' || !record.person_id) {
+            res.status(400).json({ error: 'Each record must include a person_id' });
+            return;
+          }
+          if (!VALID_PRESENCE_STATUSES.includes(record.presence_status)) {
+            res.status(400).json({
+              error: `presence_status must be one of: ${VALID_PRESENCE_STATUSES.join(', ')}`,
+            });
+            return;
+          }
+        }
+
+        // Fetch all active members of the group within the caller's org.
+        const activeMembers = await db('person_groups')
+          .join('persons', 'person_groups.person_id', 'persons.id')
+          .where('person_groups.group_id', group_id)
+          .where('persons.is_active', true)
+          .where('persons.organization_id', req.organizationId)
+          .select('persons.id as person_id');
+
+        const validPersonIds = new Set(activeMembers.map((m) => m.person_id));
+
+        // Reject if any record targets a person who is not an active member of
+        // the group in this organization.
+        const invalidPersonIds = records
+          .map((r: { person_id: string }) => r.person_id)
+          .filter((id: string) => !validPersonIds.has(id));
+
+        if (invalidPersonIds.length > 0) {
+          res.status(400).json({
+            error: 'Some person_ids are not active members of the group in your organization',
+            invalid_ids: invalidPersonIds,
+          });
+          return;
+        }
+
+        const inputs = records.map((r: { person_id: string; presence_status: string }) => ({
+          organizationId: req.organizationId!,
+          personId: r.person_id,
+          date,
+          presenceStatus: r.presence_status,
+          recordedBy: req.user!.user_id,
+        }));
+
+        const savedRecords = await bulkRecordAttendance(inputs);
+
+        // Audit log: per-student bulk attendance recorded
+        void logAudit({
+          organization_id: req.organizationId,
+          user_id: req.user!.user_id,
+          action: 'CREATE',
+          entity_type: 'attendance',
+          details: { group_id, date, mode: 'per_student', count: savedRecords.length },
+          ip_address: req.ip,
+        });
+
+        res.status(201).json({
+          message: 'Bulk attendance recorded',
+          count: savedRecords.length,
+          records: savedRecords,
+        });
+        return;
+      }
+
+      // ── Whole-group single-status mode (backward compatible) ──────────────
       // Fetch all active persons in the group that belong to the same organization
       const activePersons = await db('person_groups')
         .join('persons', 'person_groups.person_id', 'persons.id')
@@ -81,12 +161,22 @@ router.post(
         recordedBy: req.user!.user_id,
       }));
 
-      const records = await bulkRecordAttendance(inputs);
+      const savedRecords = await bulkRecordAttendance(inputs);
+
+      // Audit log: bulk attendance recorded
+      void logAudit({
+        organization_id: req.organizationId,
+        user_id: req.user!.user_id,
+        action: 'CREATE',
+        entity_type: 'attendance',
+        details: { group_id, date, presence_status, count: savedRecords.length },
+        ip_address: req.ip,
+      });
 
       res.status(201).json({
         message: 'Bulk attendance recorded',
-        count: records.length,
-        records,
+        count: savedRecords.length,
+        records: savedRecords,
       });
     } catch (error) {
       throw error;
@@ -152,6 +242,17 @@ router.post(
         recordedBy: req.user!.user_id,
         subjectId: subject_id || undefined,
         periodLabel: period_label || 'Full Day',
+      });
+
+      // Audit log: single attendance recorded
+      void logAudit({
+        organization_id: req.organizationId,
+        user_id: req.user!.user_id,
+        action: 'CREATE',
+        entity_type: 'attendance',
+        entity_id: record.id,
+        details: { person_id, date, presence_status },
+        ip_address: req.ip,
       });
 
       res.status(201).json({ attendance: record });
@@ -302,6 +403,112 @@ router.get(
       }
 
       res.status(200).json({ attendance: record });
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+/**
+ * GET /dashboard — Admin dashboard summary for a single date (defaults to today).
+ * Tenant-isolated. Returns total students, per-status counts and percentages,
+ * pending leave request count, and the number of groups not yet marked.
+ * Query: date (optional, YYYY-MM-DD)
+ *
+ * IMPORTANT: Registered before the /:personId/* param routes to avoid capture.
+ */
+router.get(
+  '/dashboard',
+  authenticate,
+  tenantIsolation,
+  authorize('Admin'),
+  async (req: Request, res: Response): Promise<void> => {
+    const { date } = req.query;
+
+    // Validate date format if provided; otherwise default to today.
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (date && !dateRegex.test(date as string)) {
+      res.status(400).json({ error: 'date must be in YYYY-MM-DD format' });
+      return;
+    }
+
+    let targetDate: string;
+    if (date) {
+      targetDate = date as string;
+    } else {
+      const now = new Date();
+      targetDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    try {
+      const organizationId = req.organizationId!;
+
+      // Total active students in the organization
+      const [{ count: totalCount }] = await db('persons')
+        .where('organization_id', organizationId)
+        .where('is_active', true)
+        .count('id as count');
+      const total_students = parseInt(totalCount as string, 10);
+
+      // Per-status counts for the target date
+      const statusRows = await db('attendance_records')
+        .where('organization_id', organizationId)
+        .where('date', targetDate)
+        .select('presence_status')
+        .count('id as count')
+        .groupBy('presence_status');
+
+      const statusCounts: Record<string, number> = {};
+      for (const row of statusRows) {
+        statusCounts[row.presence_status as string] = parseInt(row.count as string, 10);
+      }
+
+      const present = statusCounts['Present'] || 0;
+      const absent = statusCounts['Absent'] || 0;
+      const late = statusCounts['Late'] || 0;
+      const on_leave = statusCounts['On_Leave'] || 0;
+
+      const pct = (value: number): number =>
+        total_students > 0 ? Math.round((value / total_students) * 1000) / 10 : 0;
+
+      // Pending leave requests for the organization
+      const [{ count: pendingCount }] = await db('leave_requests')
+        .where('organization_id', organizationId)
+        .where('status', 'Pending')
+        .count('id as count');
+      const pending_leave_requests = parseInt(pendingCount as string, 10);
+
+      // Total groups in the organization
+      const [{ count: groupCount }] = await db('groups')
+        .where('organization_id', organizationId)
+        .count('id as count');
+      const total_groups = parseInt(groupCount as string, 10);
+
+      // Distinct groups that have at least one attendance record on the date
+      const markedGroups = await db('attendance_records')
+        .join('person_groups', 'attendance_records.person_id', 'person_groups.person_id')
+        .join('groups', 'person_groups.group_id', 'groups.id')
+        .where('attendance_records.organization_id', organizationId)
+        .where('groups.organization_id', organizationId)
+        .where('attendance_records.date', targetDate)
+        .distinct('person_groups.group_id');
+      const groups_marked = markedGroups.length;
+      const groups_not_marked = Math.max(0, total_groups - groups_marked);
+
+      res.status(200).json({
+        date: targetDate,
+        total_students,
+        present,
+        absent,
+        late,
+        on_leave,
+        present_percentage: pct(present),
+        absent_percentage: pct(absent),
+        late_percentage: pct(late),
+        on_leave_percentage: pct(on_leave),
+        pending_leave_requests,
+        groups_not_marked,
+      });
     } catch (error) {
       throw error;
     }

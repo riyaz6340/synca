@@ -5,6 +5,7 @@ import { authorize } from '../middleware/authorize';
 import db from '../config/database';
 import { createNotification } from '../services/notificationService';
 import { createLeaveAttendanceRecords } from '../services/leaveAttendanceService';
+import { logAudit } from '../utils/auditLog';
 
 const router = Router();
 
@@ -310,6 +311,17 @@ router.put(
         body: `Your leave request from ${leaveRequest.start_date} to ${leaveRequest.end_date} has been approved.`,
       });
 
+      // Audit log: leave request approved
+      void logAudit({
+        organization_id: organizationId,
+        user_id: userId,
+        action: 'UPDATE',
+        entity_type: 'leave_request',
+        entity_id: id,
+        details: { status: 'Approved' },
+        ip_address: req.ip,
+      });
+
       // Auto-create Attendance_Records with On_Leave for each date in the leave range (fire and forget)
       void (async () => {
         try {
@@ -394,6 +406,17 @@ router.put(
         type: 'leave_rejected',
         title: 'Leave Request Rejected',
         body: `Your leave request from ${leaveRequest.start_date} to ${leaveRequest.end_date} has been rejected. Reason: ${review_comment}`,
+      });
+
+      // Audit log: leave request rejected
+      void logAudit({
+        organization_id: organizationId,
+        user_id: userId,
+        action: 'UPDATE',
+        entity_type: 'leave_request',
+        entity_id: id,
+        details: { status: 'Rejected', review_comment },
+        ip_address: req.ip,
       });
 
       res.status(200).json({ leave_request: updatedLeaveRequest });
