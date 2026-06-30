@@ -372,7 +372,7 @@ router.put(
         user_id: req.user!.user_id,
         action: 'UPDATE',
         entity_type: 'person',
-        entity_id: id,
+        entity_id: id as string,
         details: { updated_fields: Object.keys(updates).filter(k => k !== 'updated_at') },
         ip_address: req.ip,
       });
@@ -419,7 +419,7 @@ router.patch(
         user_id: req.user!.user_id,
         action: 'UPDATE',
         entity_type: 'person',
-        entity_id: id,
+        entity_id: id as string,
         details: { action: 'deactivate' },
         ip_address: req.ip,
       });
@@ -463,7 +463,7 @@ router.delete(
         user_id: req.user!.user_id,
         action: 'DELETE',
         entity_type: 'person',
-        entity_id: id,
+        entity_id: id as string,
         details: { name: person.name },
         ip_address: req.ip,
       });

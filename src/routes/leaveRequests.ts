@@ -317,7 +317,7 @@ router.put(
         user_id: userId,
         action: 'UPDATE',
         entity_type: 'leave_request',
-        entity_id: id,
+        entity_id: id as string,
         details: { status: 'Approved' },
         ip_address: req.ip,
       });
@@ -414,7 +414,7 @@ router.put(
         user_id: userId,
         action: 'UPDATE',
         entity_type: 'leave_request',
-        entity_id: id,
+        entity_id: id as string,
         details: { status: 'Rejected', review_comment },
         ip_address: req.ip,
       });
