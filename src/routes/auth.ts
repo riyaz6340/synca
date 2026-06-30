@@ -4,6 +4,8 @@ import type { StringValue } from 'ms';
 import { UserModel } from '../models/User';
 import { addToBlacklist } from '../utils/tokenBlacklist';
 import db from '../config/database';
+import { authenticate } from '../middleware/authenticate';
+import { logAudit } from '../utils/auditLog';
 
 const router = Router();
 
@@ -96,6 +98,16 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     signOptions
   );
 
+  // Audit log: successful login
+  void logAudit({
+    organization_id: user.organization_id,
+    user_id: user.id,
+    action: 'LOGIN',
+    entity_type: 'user',
+    entity_id: user.id,
+    ip_address: req.ip,
+  });
+
   res.json({
     token,
     user: {
@@ -162,7 +174,65 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
 
   addToBlacklist(token);
 
+  // Audit log: logout (extract user_id from token if possible)
+  try {
+    const decoded = jwt.decode(token) as TokenPayload | null;
+    if (decoded) {
+      void logAudit({
+        organization_id: decoded.organization_id,
+        user_id: decoded.user_id,
+        action: 'LOGOUT',
+        entity_type: 'user',
+        entity_id: decoded.user_id,
+        ip_address: req.ip,
+      });
+    }
+  } catch { /* ignore decode errors */ }
+
   res.status(200).json({ message: 'Logged out successfully' });
+});
+
+// POST /change-password - Change own password (authenticated)
+router.post('/change-password', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { current_password, new_password } = req.body;
+
+  if (!current_password || !new_password) {
+    res.status(400).json({ error: 'Current password and new password are required' });
+    return;
+  }
+
+  if (new_password.length < 6) {
+    res.status(400).json({ error: 'New password must be at least 6 characters' });
+    return;
+  }
+
+  const user = await UserModel.findById(req.user!.user_id);
+  if (!user) {
+    res.status(401).json({ error: 'User not found' });
+    return;
+  }
+
+  const isValid = await UserModel.verifyPassword(current_password, user.password_hash);
+  if (!isValid) {
+    res.status(401).json({ error: 'Current password is incorrect' });
+    return;
+  }
+
+  const bcrypt = await import('bcrypt');
+  const newHash = await bcrypt.hash(new_password, 12);
+  await db('users').where({ id: req.user!.user_id }).update({ password_hash: newHash, updated_at: new Date() });
+
+  // Audit log: password change
+  void logAudit({
+    organization_id: user.organization_id,
+    user_id: user.id,
+    action: 'PASSWORD_CHANGE',
+    entity_type: 'user',
+    entity_id: user.id,
+    ip_address: req.ip,
+  });
+
+  res.json({ message: 'Password changed successfully' });
 });
 
 export default router;

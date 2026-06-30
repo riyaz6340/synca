@@ -19,6 +19,7 @@ export const ALLOWED_PREFIXES = [
   '/api/holidays',
   '/api/super-admin',
   '/api/channels',
+  '/api/audit-logs',
 ] as const;
 
 /**

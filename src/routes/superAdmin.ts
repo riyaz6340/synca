@@ -253,6 +253,50 @@ router.put('/organizations/:id/plan', async (req: Request, res: Response): Promi
 });
 
 /**
+ * PUT /organizations/:id
+ * Update an organization's general details (name, industry module) along with
+ * its plan/billing fields. Partial update — only fields present in the body
+ * are applied. (Requirement 19.5)
+ */
+router.put('/organizations/:id', async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { name, industry_module, plan, monthly_amount, billing_status } = req.body;
+
+  try {
+    const org = await db('organizations').where('id', id).first();
+    if (!org) {
+      res.status(404).json({ error: 'Organization not found' });
+      return;
+    }
+
+    const updates: Record<string, unknown> = { updated_at: new Date() };
+    if (name !== undefined) updates.name = name;
+    if (industry_module !== undefined) updates.industry_module = industry_module;
+    if (plan !== undefined) updates.plan = plan;
+    if (monthly_amount !== undefined) updates.monthly_amount = monthly_amount;
+    if (billing_status !== undefined) updates.billing_status = billing_status;
+
+    // If changing to active and no subscription start date, set it
+    if (billing_status === 'active' && !org.subscription_started_at) {
+      updates.subscription_started_at = new Date();
+    }
+
+    const [updated] = await db('organizations')
+      .where('id', id)
+      .update(updates)
+      .returning('*');
+
+    res.json({ organization: updated });
+  } catch (error) {
+    if ((error as { code?: string }).code === '23505') {
+      res.status(400).json({ error: 'An organization with this name already exists' });
+      return;
+    }
+    throw error;
+  }
+});
+
+/**
  * GET /organizations/:id
  * Get detailed info about a specific organization.
  */

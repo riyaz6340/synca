@@ -34,6 +34,9 @@ import AdminHolidaysPage from './pages/admin/HolidaysPage';
 // SuperAdmin pages
 import PlatformDashboard from './pages/superadmin/PlatformDashboard';
 
+// Shared pages (all authenticated roles)
+import ChangePasswordPage from './pages/ChangePasswordPage';
+
 /**
  * Layout wrapper for authenticated Stakeholder views — renders AppNav + page content.
  */
@@ -55,6 +58,11 @@ export default function App() {
         <Routes>
           {/* Public route */}
           <Route path="/login" element={<LoginPage />} />
+
+          {/* Shared routes — accessible to ALL authenticated roles */}
+          <Route element={<ProtectedRoute allowedRoles={['SuperAdmin', 'Admin', 'Stakeholder']} />}>
+            <Route path="/change-password" element={<ChangePasswordPage />} />
+          </Route>
 
           {/* Super Admin routes */}
           <Route element={<ProtectedRoute allowedRoles={['SuperAdmin']} />}>
