@@ -26,8 +26,17 @@ jest.mock('@/api/admin', () => ({
   __esModule: true,
   adminApi: {
     getDashboard: jest.fn(),
+    getLeaveRequests: jest.fn(),
+    getGroups: jest.fn(),
   },
-  default: { getDashboard: jest.fn() },
+  default: { getDashboard: jest.fn(), getLeaveRequests: jest.fn(), getGroups: jest.fn() },
+}));
+
+jest.mock('@/api/client', () => ({
+  __esModule: true,
+  apiClient: {
+    get: jest.fn(),
+  },
 }));
 
 import { adminApi } from '@/api/admin';

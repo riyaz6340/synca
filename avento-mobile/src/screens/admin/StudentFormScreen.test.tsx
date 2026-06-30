@@ -98,12 +98,23 @@ describe('StudentFormScreen — create mode', () => {
     expect(mockCreatePerson).not.toHaveBeenCalled();
   });
 
+  it('blocks submit and shows a field error when guardian name is empty', async () => {
+    renderWithProviders(<StudentFormScreen />);
+
+    fireEvent.changeText(screen.getByTestId('student-name'), 'Charlie Clark');
+    fireEvent.press(screen.getByTestId('student-submit'));
+
+    expect(await screen.findByTestId('student-error-guardian-name')).toBeOnTheScreen();
+    expect(mockCreatePerson).not.toHaveBeenCalled();
+  });
+
   it('submits the correct payload via createPerson and returns to the list', async () => {
     renderWithProviders(<StudentFormScreen />);
 
     fireEvent.changeText(screen.getByTestId('student-name'), 'Charlie Clark');
     fireEvent.changeText(screen.getByTestId('student-roll-number'), '7');
     fireEvent.changeText(screen.getByTestId('student-parent-email'), 'c@example.com');
+    fireEvent.changeText(screen.getByTestId('student-guardian-name'), 'Mr Clark');
 
     fireEvent.press(screen.getByTestId('student-submit'));
 
@@ -113,6 +124,7 @@ describe('StudentFormScreen — create mode', () => {
           name: 'Charlie Clark',
           roll_number: '7',
           parent_email: 'c@example.com',
+          guardian_name: 'Mr Clark',
         }),
       );
     });

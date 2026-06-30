@@ -1,6 +1,7 @@
 import db from '../config/database';
 import { enqueueNotification } from './notificationQueue';
 import { sendPushToStakeholder } from './webPushService';
+import { sendExpoPushToStakeholder } from './expoPushService';
 
 export interface CreateNotificationInput {
   organizationId: string;
@@ -8,6 +9,7 @@ export interface CreateNotificationInput {
   type: string;
   title: string;
   body: string;
+  data?: Record<string, unknown>;
 }
 
 export interface NotificationRecord {
@@ -61,6 +63,28 @@ export async function createNotification(
     })
     .catch(() => { /* web push failure is non-critical */ });
 
+  // Send Expo push notification for native mobile apps (non-blocking)
+  sendExpoPushToStakeholder(input.stakeholderId, {
+    title: input.title,
+    body: input.body,
+    data: { type: input.type, ...input.data },
+  })
+    .then(async (sent) => {
+      if (sent) {
+        // Only update if not already marked Sent by web push
+        await db('notifications')
+          .where('id', notification.id)
+          .where('delivery_status', 'Pending')
+          .update({
+            delivery_status: 'Sent',
+            channel_used: 'expo_push',
+            sent_at: new Date(),
+            updated_at: new Date(),
+          });
+      }
+    })
+    .catch(() => { /* expo push failure is non-critical */ });
+
   // Enqueue for other channels (SMS/WhatsApp/Email) if configured
   await enqueueNotification({
     stakeholderId: input.stakeholderId,
@@ -81,7 +105,8 @@ export async function createNotificationsForStakeholders(
   organizationId: string,
   type: string,
   title: string,
-  body: string
+  body: string,
+  data?: Record<string, unknown>
 ): Promise<NotificationRecord[]> {
   const notifications: NotificationRecord[] = [];
 
@@ -92,6 +117,7 @@ export async function createNotificationsForStakeholders(
       type,
       title,
       body,
+      data,
     });
     notifications.push(notification);
   }

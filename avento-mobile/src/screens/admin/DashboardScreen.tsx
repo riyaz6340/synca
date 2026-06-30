@@ -6,6 +6,9 @@
  *    (`GET /api/attendance/dashboard`) via {@link adminApi.getDashboard} using
  *    React Query, keyed by the date (defaults to today, YYYY-MM-DD)
  *    (Requirement 9.1).
+ *  - If the dedicated dashboard endpoint fails, falls back to composing the
+ *    stats client-side from GET /api/attendance + GET /api/leave-requests +
+ *    GET /api/groups (same approach the web frontend uses).
  *  - Displays the total number of students plus the count and percentage of
  *    students marked Present, Absent, Late, and On_Leave for today, using
  *    color-coded stat tiles (Requirement 9.2).
@@ -23,6 +26,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 
 import { adminApi, type AdminDashboardSummary } from '@/api/admin';
+import { apiClient } from '@/api/client';
 import {
   ErrorState,
   PullToRefresh,
@@ -43,6 +47,88 @@ export function toDateString(date: Date = new Date()): string {
 /** Build the React Query key for the admin dashboard on a given date. */
 export function adminDashboardQueryKey(date: string): readonly [string, string, string] {
   return ['admin', 'dashboard', date] as const;
+}
+
+/**
+ * Fetch dashboard data with a fallback strategy: try the dedicated endpoint
+ * first; on failure, compose from individual endpoints.
+ */
+export async function fetchDashboardWithFallback(
+  date: string,
+): Promise<AdminDashboardSummary> {
+  try {
+    return await adminApi.getDashboard(date);
+  } catch {
+    // Fallback: compose dashboard stats from individual endpoints.
+    const [attendanceResult, leaveResult, groupsResult] = await Promise.all([
+      adminApi.getLeaveRequests({ page: 1, limit: 1 }).then(
+        (lr) => lr,
+        () => null,
+      ),
+      adminApi.getLeaveRequests({ page: 1, limit: 100 }).then(
+        (lr) => lr,
+        () => null,
+      ),
+      adminApi.getGroups().then(
+        (g) => g,
+        () => null,
+      ),
+    ]);
+
+    // Fetch today's attendance records via the existing endpoint.
+    let attendanceRecords: Array<{ presence_status: string }> = [];
+    try {
+      const res = await apiClient.get<{ data: Array<{ presence_status: string }> }>(
+        '/api/attendance',
+        { params: { start_date: date, end_date: date, limit: 500 } },
+      );
+      attendanceRecords = res.data?.data ?? [];
+    } catch {
+      // If attendance endpoint also fails, we'll have zero counts.
+    }
+
+    // Count statuses from attendance records.
+    let present = 0;
+    let absent = 0;
+    let late = 0;
+    let on_leave = 0;
+    for (const rec of attendanceRecords) {
+      const status = rec.presence_status?.toLowerCase() ?? '';
+      if (status === 'present') present++;
+      else if (status === 'absent') absent++;
+      else if (status === 'late') late++;
+      else if (status === 'on_leave' || status === 'on leave') on_leave++;
+    }
+
+    const total_students = attendanceRecords.length || 0;
+    const pct = (n: number): number =>
+      total_students > 0 ? Math.round((n / total_students) * 100) : 0;
+
+    // Pending leave requests.
+    const pending_leave_requests =
+      leaveResult?.data.filter((lr) => lr.status === 'Pending').length ?? 0;
+
+    // Groups not marked (groups with attendance_marked_today === false).
+    const groups = groupsResult ?? [];
+    const groups_not_marked = groups.filter(
+      (g) => !g.attendance_marked_today,
+    ).length;
+
+    return {
+      date,
+      total_students,
+      present,
+      absent,
+      late,
+      on_leave,
+      present_percentage: pct(present),
+      absent_percentage: pct(absent),
+      late_percentage: pct(late),
+      on_leave_percentage: pct(on_leave),
+      pending_leave_requests,
+      groups_not_marked,
+    };
+  }
 }
 
 interface StatTileProps {
@@ -75,7 +161,7 @@ export default function DashboardScreen() {
 
   const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: adminDashboardQueryKey(date),
-    queryFn: () => adminApi.getDashboard(date),
+    queryFn: () => fetchDashboardWithFallback(date),
   });
 
   // Initial load with no cached data yet → skeleton placeholders.

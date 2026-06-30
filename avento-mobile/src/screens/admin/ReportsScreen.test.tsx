@@ -32,6 +32,10 @@ jest.mock('@/api/admin', () => ({
   },
 }));
 
+jest.mock('@/components/DateRangePicker', () =>
+  require('@/__tests__/mocks/DateRangePicker'),
+);
+
 jest.mock('@/services/shareFile', () => ({
   __esModule: true,
   sharePdf: jest.fn(),

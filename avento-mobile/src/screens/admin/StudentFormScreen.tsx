@@ -121,6 +121,7 @@ export default function StudentFormScreen() {
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [guardianNameError, setGuardianNameError] = useState<string | null>(null);
 
   // ── Group options for the assignment dropdown (Requirement 11.2) ───────────
   const { data: groups = [] } = useQuery({
@@ -185,11 +186,24 @@ export default function StudentFormScreen() {
   });
 
   const onSubmit = (): void => {
+    let hasError = false;
+
     if (!form.name.trim()) {
       setNameError('Name is required.');
-      return;
+      hasError = true;
+    } else {
+      setNameError(null);
     }
-    setNameError(null);
+
+    if (!form.guardian_name.trim()) {
+      setGuardianNameError('Guardian name is required.');
+      hasError = true;
+    } else {
+      setGuardianNameError(null);
+    }
+
+    if (hasError) return;
+
     saveMutation.mutate(buildPersonInput(form));
   };
 
@@ -349,7 +363,7 @@ export default function StudentFormScreen() {
         />
       </Field>
 
-      <Field label="Guardian name">
+      <Field label="Guardian name" required>
         <TextInput
           style={styles.input}
           value={form.guardian_name}
@@ -358,6 +372,11 @@ export default function StudentFormScreen() {
           placeholderTextColor={colors.textMuted}
           testID="student-guardian-name"
         />
+        {guardianNameError ? (
+          <Text style={styles.error} testID="student-error-guardian-name">
+            {guardianNameError}
+          </Text>
+        ) : null}
       </Field>
 
       <Field label="Group">

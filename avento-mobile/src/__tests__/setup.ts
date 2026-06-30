@@ -31,3 +31,29 @@ jest.mock('@react-native-community/netinfo', () => ({
     Promise.resolve({ isConnected: true, isInternetReachable: true }),
   ),
 }));
+
+jest.mock('@react-native-community/datetimepicker', () => {
+  const React = require('react');
+  const { View, Pressable, Text } = require('react-native');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const MockDateTimePicker = (props: any) => {
+    // Render a pressable that calls onChange when tapped, simulating date selection
+    return React.createElement(
+      Pressable,
+      {
+        testID: props.testID,
+        onPress: () => {
+          if (props.onChange) {
+            props.onChange({ type: 'set', nativeEvent: { timestamp: 0, utcOffset: 0 } }, props.value);
+          }
+        },
+      },
+      React.createElement(Text, null, 'MockPicker'),
+    );
+  };
+  MockDateTimePicker.displayName = 'MockDateTimePicker';
+  return {
+    __esModule: true,
+    default: MockDateTimePicker,
+  };
+});

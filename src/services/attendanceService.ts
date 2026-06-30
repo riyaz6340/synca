@@ -67,7 +67,8 @@ function triggerStakeholderNotifications(
         organizationId,
         notificationType,
         title,
-        body
+        body,
+        { personId, personName }
       );
     } catch {
       // Silently catch errors to not fail attendance recording

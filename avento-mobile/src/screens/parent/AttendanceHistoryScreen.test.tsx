@@ -34,6 +34,10 @@ jest.mock('@/api/portal', () => ({
   },
 }));
 
+jest.mock('@/components/DateRangePicker', () =>
+  require('@/__tests__/mocks/DateRangePicker'),
+);
+
 import { portalApi } from '@/api/portal';
 import AttendanceHistoryScreen from './AttendanceHistoryScreen';
 

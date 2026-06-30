@@ -28,6 +28,7 @@ import { useUnseenAnnouncementCount } from '@/hooks/useAnnouncements';
 import AnnouncementDetailScreen from '@/screens/parent/AnnouncementDetailScreen';
 import AnnouncementListScreen from '@/screens/parent/AnnouncementListScreen';
 import AttendanceHistoryScreen from '@/screens/parent/AttendanceHistoryScreen';
+import ChildSelectScreen from '@/screens/parent/ChildSelectScreen';
 import HomeScreen from '@/screens/parent/HomeScreen';
 import LeaveFormScreen from '@/screens/parent/LeaveFormScreen';
 import LeaveListScreen from '@/screens/parent/LeaveListScreen';
@@ -73,11 +74,16 @@ const AttendanceStack =
   createNativeStackNavigator<ParentAttendanceStackParamList>();
 function AttendanceStackNavigator() {
   return (
-    <AttendanceStack.Navigator>
+    <AttendanceStack.Navigator initialRouteName="ChildSelect">
+      <AttendanceStack.Screen
+        name="ChildSelect"
+        component={ChildSelectScreen}
+        options={{ title: 'Attendance' }}
+      />
       <AttendanceStack.Screen
         name="AttendanceHistory"
         component={AttendanceHistoryScreen}
-        options={{ title: 'Attendance' }}
+        options={{ title: 'History' }}
       />
       <AttendanceStack.Screen
         name="AttendanceCalendar"

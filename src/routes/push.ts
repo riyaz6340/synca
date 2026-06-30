@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { authenticate } from '../middleware/authenticate';
 import { tenantIsolation } from '../middleware/tenantIsolation';
 import { getPublicKey, saveSubscription, sendPushToUser } from '../services/webPushService';
+import { saveExpoPushToken, removeExpoPushToken } from '../services/expoPushService';
 
 const router = Router();
 
@@ -52,6 +53,55 @@ router.post(
       type: 'test',
     });
     res.json({ sent });
+  }
+);
+
+/**
+ * POST /register-device — Register an Expo push token for the logged-in user.
+ * Body: { token: "ExponentPushToken[...]", platform?: "android" | "ios" }
+ */
+router.post(
+  '/register-device',
+  authenticate,
+  tenantIsolation,
+  async (req: Request, res: Response): Promise<void> => {
+    const { token, platform } = req.body;
+
+    if (!token || typeof token !== 'string') {
+      res.status(400).json({ error: 'token is required and must be a string' });
+      return;
+    }
+
+    try {
+      await saveExpoPushToken(req.user!.user_id, token, platform || 'android');
+      res.status(201).json({ message: 'Device registered for push notifications' });
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+/**
+ * POST /unregister-device — Remove an Expo push token (e.g., on logout).
+ * Body: { token: "ExponentPushToken[...]" }
+ */
+router.post(
+  '/unregister-device',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { token } = req.body;
+
+    if (!token || typeof token !== 'string') {
+      res.status(400).json({ error: 'token is required and must be a string' });
+      return;
+    }
+
+    try {
+      await removeExpoPushToken(token);
+      res.status(200).json({ message: 'Device unregistered from push notifications' });
+    } catch (error) {
+      throw error;
+    }
   }
 );
 

@@ -20,6 +20,7 @@ export type ParentHomeStackParamList = {
 };
 
 export type ParentAttendanceStackParamList = {
+  ChildSelect: undefined;
   AttendanceHistory: { personId: string; personName: string };
   AttendanceCalendar: { personId: string; personName: string };
 };

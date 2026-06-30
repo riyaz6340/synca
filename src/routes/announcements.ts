@@ -280,7 +280,8 @@ router.post(
           req.organizationId!,
           'announcement',
           updated.title,
-          updated.body
+          updated.body,
+          { announcementId: updated.id }
         ).catch(() => {
           // Non-blocking: log error but don't fail the request
         });
