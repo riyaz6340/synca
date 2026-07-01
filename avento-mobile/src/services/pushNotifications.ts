@@ -195,7 +195,9 @@ export async function registerToken(authToken: string): Promise<void> {
 
   let token: string | null;
   try {
-    const result = await Notifications.getExpoPushTokenAsync();
+    const result = await Notifications.getExpoPushTokenAsync({
+      projectId: '7f07c06f-d0d0-46fc-a4be-a3950109cf7d',
+    });
     token = result?.data ?? null;
   } catch {
     // Token retrieval can fail on emulators / without FCM credentials.
