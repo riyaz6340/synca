@@ -46,6 +46,20 @@ export const radius = {
   pill: 999,
 } as const;
 
+const DEFAULT_PRIMARY = '#2563eb';
+
+/**
+ * Returns a themed colors object with `primary` replaced by the override
+ * when provided, or the default `#2563eb` otherwise.
+ */
+export function getThemedColors(primaryOverride?: string | null) {
+  const primary = primaryOverride ?? DEFAULT_PRIMARY;
+  return {
+    ...colors,
+    primary,
+  };
+}
+
 /** Visual descriptor (background color + human label) for a presence status. */
 export interface StatusVisual {
   color: string;

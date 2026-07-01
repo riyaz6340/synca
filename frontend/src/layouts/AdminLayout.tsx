@@ -1,23 +1,62 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { getDisplayName } from '../utils/getDisplayName'
 
+/**
+ * Navigation items with their required permissions for Teacher users.
+ * Admin/SuperAdmin users see all items. Teachers only see items
+ * for which they have at least one of the required permissions.
+ */
 const navItems = [
-  { to: '/admin/dashboard', label: '📊 Dashboard' },
-  { to: '/admin/persons', label: '👥 Students' },
-  { to: '/admin/groups', label: '🏫 Classes' },
-  { to: '/admin/attendance', label: '✅ Attendance' },
-  { to: '/admin/leave-requests', label: '📋 Leave Requests' },
-  { to: '/admin/announcements', label: '📢 Announcements' },
-  { to: '/admin/reports', label: '📈 Reports' },
-  { to: '/admin/channels', label: '📱 Channels' },
-  { to: '/admin/undeliverable', label: '⚠️ Undeliverable' },
-  { to: '/admin/holidays', label: '🗓️ Holidays' },
+  { to: '/admin/dashboard', label: '📊 Dashboard', requiredPermissions: [] as string[] },
+  { to: '/admin/persons', label: '👥 Students', requiredPermissions: ['manage_students'] },
+  { to: '/admin/groups', label: '🏫 Classes', requiredPermissions: ['manage_groups'] },
+  { to: '/admin/attendance', label: '✅ Attendance', requiredPermissions: ['mark_attendance', 'view_attendance_reports'] },
+  { to: '/admin/leave-requests', label: '📋 Leave Requests', requiredPermissions: ['approve_leave_requests', 'view_leave_requests'] },
+  { to: '/admin/announcements', label: '📢 Announcements', requiredPermissions: ['create_announcements', 'publish_announcements'] },
+  { to: '/admin/reports', label: '📈 Reports', requiredPermissions: ['view_attendance_reports'] },
+  { to: '/admin/channels', label: '📱 Channels', requiredPermissions: [] as string[] },
+  { to: '/admin/undeliverable', label: '⚠️ Undeliverable', requiredPermissions: [] as string[] },
+  { to: '/admin/holidays', label: '🗓️ Holidays', requiredPermissions: ['manage_holidays'] },
+  { to: '/admin/teachers', label: '👩‍🏫 Teachers', requiredPermissions: [] as string[] },
+  { to: '/admin/role-templates', label: '🔑 Role Templates', requiredPermissions: [] as string[] },
+  { to: '/admin/branding', label: '🎨 Branding', requiredPermissions: [] as string[] },
 ]
 
+/** Items that should only ever appear for Admin users (not Teachers) */
+const adminOnlyItems = ['/admin/teachers', '/admin/role-templates', '/admin/channels', '/admin/undeliverable', '/admin/branding']
+
 export default function AdminLayout() {
-  const { user, logout } = useAuth()
+  const { user, logout, teacherContext, organizationName, isLoading, logoUrl } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [logoError, setLogoError] = useState(false)
+
+  // Reset logo error state when logoUrl changes
+  useEffect(() => {
+    setLogoError(false)
+  }, [logoUrl])
+
+  const isTeacher = user?.role === 'Teacher'
+  const teacherPermissions = teacherContext?.permissions ?? []
+
+  // Filter navigation items based on user role and permissions
+  const visibleNavItems = navItems.filter(item => {
+    // Admin sees everything
+    if (!isTeacher) return true
+
+    // Teacher never sees admin-only items
+    if (adminOnlyItems.includes(item.to)) return false
+
+    // Dashboard is always visible for Teacher
+    if (item.to === '/admin/dashboard') return true
+
+    // Items with no required permissions (channels, undeliverable) are hidden for Teacher
+    if (item.requiredPermissions.length === 0) return false
+
+    // Teacher sees item if they have at least one of the required permissions
+    return item.requiredPermissions.some(p => teacherPermissions.includes(p))
+  })
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
@@ -45,12 +84,26 @@ export default function AdminLayout() {
         display: 'flex', flexDirection: 'column', minHeight: '100vh',
       }}>
         <div style={{ padding: '1.25rem 1rem 1rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>Avento</h2>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Admin Panel</p>
+          {logoUrl && !logoError ? (
+            <img
+              src={logoUrl}
+              alt={organizationName ?? 'Organization logo'}
+              style={{ maxWidth: 140, maxHeight: 48, objectFit: 'contain', display: 'block' }}
+              onError={() => setLogoError(true)}
+            />
+          ) : (
+            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>Avento</h2>
+          )}
+          {isLoading ? (
+            <div style={{ margin: '0.25rem 0 0', height: '1rem', width: '70%', background: '#1e293b', borderRadius: '4px', animation: 'pulse 1.5s ease-in-out infinite' }} />
+          ) : (
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>{getDisplayName(organizationName)}</p>
+          )}
+          <p style={{ margin: '0.2rem 0 0', fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>{isTeacher ? 'Teacher Panel' : 'Admin Panel'}</p>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '0 0.5rem', flex: 1, overflowY: 'auto' }}>
-          {navItems.map(item => (
+          {visibleNavItems.map(item => (
             <NavLink
               key={item.to}
               to={item.to}

@@ -53,6 +53,7 @@ import BiometricScreen from '@/screens/auth/BiometricScreen';
 import AdminTabNavigator from './AdminTabNavigator';
 import ParentTabNavigator from './ParentTabNavigator';
 import SuperAdminTabNavigator from './SuperAdminTabNavigator';
+import TeacherTabNavigator from './TeacherTabNavigator';
 
 // ---------------------------------------------------------------------------
 // Pure route-selection logic (exported for unit testing).
@@ -64,7 +65,8 @@ export type RootRoute =
   | 'Biometric'
   | 'ParentTabs'
   | 'AdminTabs'
-  | 'SuperAdminTabs';
+  | 'SuperAdminTabs'
+  | 'TeacherTabs';
 
 /**
  * Map a user role to its tab destination. The platform's 'Stakeholder' role is
@@ -77,6 +79,8 @@ export function tabsRouteForRole(role: AppRole | null | undefined): RootRoute {
       return 'AdminTabs';
     case 'SuperAdmin':
       return 'SuperAdminTabs';
+    case 'Teacher':
+      return 'TeacherTabs';
     case 'Stakeholder':
       return 'ParentTabs';
     default:
@@ -138,6 +142,9 @@ export default function RootNavigator() {
   // Guards push-token registration so it happens once per authenticated
   // session rather than on every render where a token is present (Req 22.1).
   const pushRegisteredRef = useRef(false);
+  // Guards cold-start deep-link handling so a notification that launched the
+  // app from a killed state is routed exactly once, after the container mounts.
+  const coldStartHandledRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -223,6 +230,23 @@ export default function RootNavigator() {
     [isAuthenticated],
   );
 
+  // Handle a notification that launched the app from a fully-killed state.
+  // The tap listener only fires for warm/background apps, so on cold start we
+  // must explicitly read the last notification response once the container is
+  // ready and route it (only while authenticated, since deep-link targets live
+  // inside the authenticated tabs). Runs at most once per launch.
+  const handleNavigatorReady = useCallback(() => {
+    if (coldStartHandledRef.current || !isAuthenticated) {
+      return;
+    }
+    coldStartHandledRef.current = true;
+    void Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        pushNotifications.handleNotificationTapped(response);
+      }
+    });
+  }, [isAuthenticated]);
+
   if (isRestoring || isLoading || !isNavStateReady) {
     return (
       <View style={styles.splash}>
@@ -254,6 +278,7 @@ export default function RootNavigator() {
       ref={navigationRef}
       initialState={isAuthenticated ? initialNavState : undefined}
       onStateChange={handleStateChange}
+      onReady={handleNavigatorReady}
     >
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {route === 'Auth' ? (
@@ -264,6 +289,11 @@ export default function RootNavigator() {
           <RootStack.Screen
             name="SuperAdminTabs"
             component={SuperAdminTabNavigator}
+          />
+        ) : route === 'TeacherTabs' ? (
+          <RootStack.Screen
+            name="TeacherTabs"
+            component={TeacherTabNavigator}
           />
         ) : (
           <RootStack.Screen name="ParentTabs" component={ParentTabNavigator} />

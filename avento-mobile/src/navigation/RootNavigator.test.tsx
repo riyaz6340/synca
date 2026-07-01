@@ -43,6 +43,7 @@ jest.mock('@/services/biometric', () => ({
 jest.mock('expo-notifications', () => ({
   addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
   addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  getLastNotificationResponseAsync: jest.fn(() => Promise.resolve(null)),
 }));
 
 jest.mock('@/services/pushNotifications', () => ({
@@ -122,6 +123,11 @@ jest.mock('@/api/superadmin', () => ({
         recent_organizations: [],
         organizations_by_size: [],
       }),
+    ),
+  },
+  superAdminAnalyticsApi: {
+    getAnalyticsMetrics: jest.fn(() =>
+      Promise.resolve({ dau: 0, wau: 0, mau: 0, yau: 0 }),
     ),
   },
 }));
@@ -390,5 +396,119 @@ describe('RootNavigator push-notification wiring', () => {
       expect(mockPush.setNavigationHandler).toHaveBeenCalled();
     });
     expect(mockPush.registerToken).not.toHaveBeenCalled();
+  });
+});
+
+// --- Cold-start notification handling (Requirements 7.1, 7.2, 7.3) ----------
+
+describe('RootNavigator cold-start notification handling', () => {
+  const Notifications = jest.requireMock('expo-notifications') as {
+    getLastNotificationResponseAsync: jest.Mock;
+    addNotificationResponseReceivedListener: jest.Mock;
+    addNotificationReceivedListener: jest.Mock;
+  };
+
+  const mockHandleNotificationTapped = (
+    pushNotifications as unknown as { handleNotificationTapped: jest.Mock }
+  ).handleNotificationTapped;
+
+  it('processes a cold-start notification response once on navigator ready', async () => {
+    const fakeResponse = {
+      actionIdentifier: 'default',
+      notification: {
+        request: {
+          content: { data: { type: 'leave_approved', leave_id: 'lv-1' } },
+        },
+      },
+    };
+    Notifications.getLastNotificationResponseAsync.mockResolvedValueOnce(
+      fakeResponse,
+    );
+
+    primeStore(
+      buildState({
+        isAuthenticated: true,
+        token: 'jwt-xyz',
+        user: userWithRole('Stakeholder'),
+      }),
+    );
+
+    renderWithProviders(<RootNavigator />);
+
+    // Wait for the navigator to mount and fire onReady → handleNavigatorReady
+    await waitFor(() => {
+      expect(
+        Notifications.getLastNotificationResponseAsync,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(mockHandleNotificationTapped).toHaveBeenCalledWith(fakeResponse);
+    });
+  });
+
+  it('processes the cold-start notification at most once (idempotent)', async () => {
+    const fakeResponse = {
+      actionIdentifier: 'default',
+      notification: {
+        request: {
+          content: { data: { type: 'leave_rejected', leave_id: 'lv-2' } },
+        },
+      },
+    };
+    Notifications.getLastNotificationResponseAsync.mockResolvedValue(
+      fakeResponse,
+    );
+
+    primeStore(
+      buildState({
+        isAuthenticated: true,
+        token: 'jwt-xyz',
+        user: userWithRole('Stakeholder'),
+      }),
+    );
+
+    const { rerender } = renderWithProviders(<RootNavigator />);
+
+    // First onReady fires and processes the notification
+    await waitFor(() => {
+      expect(mockHandleNotificationTapped).toHaveBeenCalledTimes(1);
+    });
+
+    // Force a re-render (simulates state change that could re-trigger onReady)
+    rerender(<RootNavigator />);
+
+    // handleNotificationTapped must not be called again — coldStartHandledRef
+    // guards against duplicate processing (Requirement 7.3).
+    await waitFor(() => {
+      expect(mockHandleNotificationTapped).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('does not process cold-start notification when unauthenticated', async () => {
+    const fakeResponse = {
+      actionIdentifier: 'default',
+      notification: {
+        request: {
+          content: { data: { type: 'leave_approved', leave_id: 'lv-3' } },
+        },
+      },
+    };
+    Notifications.getLastNotificationResponseAsync.mockResolvedValue(
+      fakeResponse,
+    );
+
+    primeStore(buildState({ isAuthenticated: false, token: null }));
+
+    renderWithProviders(<RootNavigator />);
+
+    // The navigator mounts the Auth screen; cold-start should not fire because
+    // deep-link targets live inside authenticated tabs only.
+    await waitFor(() => {
+      expect(screen.getByText('Sign In')).toBeOnTheScreen();
+    });
+
+    // getLastNotificationResponseAsync should not be called when unauthenticated
+    expect(mockHandleNotificationTapped).not.toHaveBeenCalled();
   });
 });

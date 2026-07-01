@@ -234,6 +234,78 @@ router.post(
   }
 );
 
+// PUT /:id/members/:personId/roll-number - Assign/update roll number for a member (Admin only)
+router.put(
+  '/:id/members/:personId/roll-number',
+  authenticate,
+  tenantIsolation,
+  authorize('Admin'),
+  async (req: Request, res: Response): Promise<void> => {
+    const { id, personId } = req.params;
+    const { roll_number } = req.body;
+
+    // Validate roll_number: must be null (to clear) or integer between 1 and 9999
+    if (roll_number !== null && roll_number !== undefined) {
+      const num = Number(roll_number);
+      if (!Number.isInteger(num) || num < 1 || num > 9999) {
+        res.status(400).json({ error: 'Roll number must be between 1 and 9999' });
+        return;
+      }
+    }
+
+    try {
+      // Verify the group exists and belongs to the admin's organization
+      const group = await db('groups')
+        .where({ id, organization_id: req.organizationId })
+        .first();
+
+      if (!group) {
+        res.status(404).json({ error: 'Group not found' });
+        return;
+      }
+
+      // Verify the person is a member of this group
+      const membership = await db('person_groups')
+        .where({ person_id: personId, group_id: id })
+        .first();
+
+      if (!membership) {
+        res.status(404).json({ error: 'Person is not a member of this group' });
+        return;
+      }
+
+      const newRollNumber = roll_number === null || roll_number === undefined ? null : Number(roll_number);
+
+      // Check for duplicates within the group (excluding current person)
+      if (newRollNumber !== null) {
+        const existing = await db('person_groups')
+          .where({ group_id: id, roll_number: newRollNumber })
+          .whereNot({ person_id: personId })
+          .first();
+
+        if (existing) {
+          res.status(409).json({ error: `Roll number ${newRollNumber} is already assigned in this group` });
+          return;
+        }
+      }
+
+      // Update the roll_number
+      await db('person_groups')
+        .where({ person_id: personId, group_id: id })
+        .update({ roll_number: newRollNumber });
+
+      res.status(200).json({
+        message: 'Roll number updated',
+        person_id: personId,
+        group_id: id,
+        roll_number: newRollNumber,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
 // DELETE /:id/members/:personId - Remove a Person from a Group (Admin only)
 router.delete(
   '/:id/members/:personId',

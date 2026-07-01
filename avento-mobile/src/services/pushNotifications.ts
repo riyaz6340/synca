@@ -89,8 +89,11 @@ export function configureForegroundBehavior(): void {
  * Pure mapping from a notification `data` payload to a navigation target.
  *
  * Supported payload `type` values:
- * - `attendance`    → `AttendanceHistory` (forwards `personId` / `personName`)
- * - `announcement`  → `AnnouncementDetail` (forwards `announcementId`)
+ * - `attendance`           → `AttendanceHistory` (forwards `personId` / `personName`)
+ * - `announcement`         → `AnnouncementDetail` (forwards `announcementId`)
+ * - `leave_approved`       → `LeaveList` (forwards `leaveId`, optional `personId`)
+ * - `leave_rejected`       → `LeaveList` (forwards `leaveId`, optional `personId`)
+ * - `admin_leave_pending`  → `LeaveManagement` (forwards `leaveId`, optional `personId`, optional `organizationId`)
  *
  * Returns `null` for unknown / missing types so callers can no-op safely.
  * Exported separately so the routing logic can be unit-tested without any
@@ -121,6 +124,29 @@ export function resolveNavigationTarget(
           announcementId: data.announcementId ?? data.announcement_id,
         },
       };
+    case 'leave_approved':
+    case 'leave_rejected': {
+      const leaveId = data.leaveId ?? data.leave_id;
+      if (!leaveId) return null;
+
+      const params: Record<string, unknown> = { leaveId };
+      const personId = data.personId ?? data.person_id;
+      if (personId) params.personId = personId;
+
+      return { screen: 'LeaveList', params };
+    }
+    case 'admin_leave_pending': {
+      const leaveId = data.leaveId ?? data.leave_id;
+      if (!leaveId) return null;
+
+      const params: Record<string, unknown> = { leaveId };
+      const personId = data.personId ?? data.person_id;
+      if (personId) params.personId = personId;
+      const organizationId = data.organizationId ?? data.organization_id;
+      if (organizationId) params.organizationId = organizationId;
+
+      return { screen: 'LeaveManagement', params };
+    }
     default:
       return null;
   }

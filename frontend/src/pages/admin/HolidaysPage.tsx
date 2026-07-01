@@ -124,7 +124,7 @@ export default function HolidaysPage() {
       )}
 
       {/* Calendar View */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1rem' }}>
         {[...Array(12)].map((_, monthIdx) => {
           const monthHolidays = holidays.filter(h => {
             const m = parseInt(h.date.split('-')[1], 10)

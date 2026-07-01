@@ -123,11 +123,11 @@ export default function ChannelsPage() {
           <tbody>
             {orgChannels.map((ch, i) => (
               <tr key={ch.type}>
-                <td style={tdStyle}>{ch.type}</td>
-                <td style={tdStyle}>
+                <td style={tdStyle} data-label="Channel">{ch.type}</td>
+                <td style={tdStyle} data-label="Enabled">
                   <input type="checkbox" checked={ch.enabled} onChange={() => toggleChannel(i)} />
                 </td>
-                <td style={tdStyle}>
+                <td style={tdStyle} data-label="Priority">
                   <input
                     type="number"
                     min={1}
@@ -161,8 +161,8 @@ export default function ChannelsPage() {
             <tbody>
               {stakeholders.map((s) => (
                 <tr key={s.id}>
-                  <td style={tdStyle}>{s.name}</td>
-                  <td style={tdStyle}>
+                  <td style={tdStyle} data-label="Name">{s.name}</td>
+                  <td style={tdStyle} data-label="Actions">
                     <button onClick={() => void openStakeholderChannels(s)} style={btnSmall}>Configure</button>
                   </td>
                 </tr>
@@ -188,15 +188,15 @@ export default function ChannelsPage() {
               <tbody>
                 {stakeholderChannels.map((ch, i) => (
                   <tr key={ch.type}>
-                    <td style={tdStyle}>{ch.type}</td>
-                    <td style={tdStyle}>
+                    <td style={tdStyle} data-label="Channel">{ch.type}</td>
+                    <td style={tdStyle} data-label="Enabled">
                       <input
                         type="checkbox"
                         checked={ch.enabled}
                         onChange={() => setStakeholderChannels((prev) => prev.map((c, idx) => idx === i ? { ...c, enabled: !c.enabled } : c))}
                       />
                     </td>
-                    <td style={tdStyle}>
+                    <td style={tdStyle} data-label="Priority">
                       <input
                         type="number"
                         min={1}

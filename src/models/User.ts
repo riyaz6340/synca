@@ -3,7 +3,7 @@ import db from '../config/database';
 
 const SALT_ROUNDS = 12;
 
-export type UserRole = 'Admin' | 'Stakeholder';
+export type UserRole = 'Admin' | 'Stakeholder' | 'Teacher';
 
 export interface User {
   id: string;

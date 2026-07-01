@@ -124,7 +124,7 @@ export default function ReportsPage() {
       <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Generate class-wise, student-wise, or organization-wide attendance reports.</p>
 
       {/* Report Type Tabs */}
-      <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', borderRadius: '8px', padding: '3px', marginBottom: '1.5rem', width: 'fit-content' }}>
+      <div className="scroll-x-mobile" style={{ display: 'flex', gap: '4px', background: '#f1f5f9', borderRadius: '8px', padding: '3px', marginBottom: '1.5rem', width: 'fit-content' }}>
         {([['class', '🏫 Class Report'], ['student', '👤 Student Report'], ['organization', '🏢 School Report'], ['date_wise', '📅 Date-wise']] as [ReportType, string][]).map(([type, label]) => (
           <button key={type} onClick={() => { setReportType(type); setResults([]); setSummary(null) }}
             style={{ ...tabBtn, background: reportType === type ? '#fff' : 'transparent', color: reportType === type ? '#1e293b' : '#64748b', boxShadow: reportType === type ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
@@ -239,13 +239,13 @@ export default function ReportsPage() {
             <tbody>
               {results.map((r, i) => (
                 <tr key={r.personId} style={{ background: r.attendancePercentage < 75 ? '#fef2f2' : 'transparent' }}>
-                  <td style={tdStyle}>{i + 1}</td>
-                  <td style={tdStyle}><strong>{r.personName}</strong></td>
-                  <td style={{ ...tdStyle, color: '#16a34a', fontWeight: 600 }}>{r.daysPresent}</td>
-                  <td style={{ ...tdStyle, color: '#dc2626', fontWeight: 600 }}>{r.daysAbsent}</td>
-                  <td style={{ ...tdStyle, color: '#d97706', fontWeight: 600 }}>{r.daysLate}</td>
-                  <td style={{ ...tdStyle, color: '#2563eb' }}>{r.daysOnLeave}</td>
-                  <td style={tdStyle}>
+                  <td style={tdStyle} data-label="#">{i + 1}</td>
+                  <td style={tdStyle} data-label="Student Name"><strong>{r.personName}</strong></td>
+                  <td style={{ ...tdStyle, color: '#16a34a', fontWeight: 600 }} data-label="Present">{r.daysPresent}</td>
+                  <td style={{ ...tdStyle, color: '#dc2626', fontWeight: 600 }} data-label="Absent">{r.daysAbsent}</td>
+                  <td style={{ ...tdStyle, color: '#d97706', fontWeight: 600 }} data-label="Late">{r.daysLate}</td>
+                  <td style={{ ...tdStyle, color: '#2563eb' }} data-label="Leave">{r.daysOnLeave}</td>
+                  <td style={tdStyle} data-label="Attendance %">
                     <span style={{ padding: '0.2rem 0.5rem', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 600, background: r.attendancePercentage >= 90 ? '#dcfce7' : r.attendancePercentage >= 75 ? '#fefce8' : '#fef2f2', color: r.attendancePercentage >= 90 ? '#16a34a' : r.attendancePercentage >= 75 ? '#d97706' : '#dc2626' }}>
                       {r.attendancePercentage?.toFixed(1)}%
                     </span>

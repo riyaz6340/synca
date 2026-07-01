@@ -56,4 +56,10 @@ export interface SecureSession {
   token: string;
   user: AppUser;
   biometricEnabled: boolean;
+  /** Cached organization name for branding (Requirement 6.1) */
+  organizationName?: string;
+  /** Cached organization logo URL for branding (Requirement 7.1) */
+  logoUrl?: string;
+  /** Cached organization primary color for branding (Requirement 7.1) */
+  primaryColor?: string;
 }

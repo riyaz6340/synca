@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import apiClient from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
+import { getDisplayName } from '../../utils/getDisplayName'
 
 interface DashboardData {
   attendanceCount: number
@@ -16,6 +18,7 @@ interface DashboardData {
 
 export default function DashboardPage() {
   const navigate = useNavigate()
+  const { organizationName, isLoading: authLoading } = useAuth()
   const [data, setData] = useState<DashboardData>({
     attendanceCount: 0,
     pendingLeaveCount: 0,
@@ -54,7 +57,23 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Admin Dashboard</h1>
+      <h1 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>
+        {authLoading ? (
+          <span
+            style={{
+              display: 'inline-block',
+              width: '200px',
+              height: '1.5rem',
+              background: 'linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%)',
+              borderRadius: '4px',
+              animation: 'pulse 1.5s ease-in-out infinite',
+            }}
+            aria-label="Loading organization name"
+          />
+        ) : (
+          `${getDisplayName(organizationName)} Dashboard`
+        )}
+      </h1>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         <div style={widgetClickable} onClick={() => navigate('/admin/attendance')}>
@@ -87,10 +106,10 @@ export default function DashboardPage() {
           <tbody>
             {data.notifications.map((n) => (
               <tr key={n.id}>
-                <td style={tdStyle}>{n.title}</td>
-                <td style={tdStyle}>{n.type}</td>
-                <td style={tdStyle}>{n.delivery_status}</td>
-                <td style={tdStyle}>{new Date(n.created_at).toLocaleDateString()}</td>
+                <td style={tdStyle} data-label="Title">{n.title}</td>
+                <td style={tdStyle} data-label="Type">{n.type}</td>
+                <td style={tdStyle} data-label="Status">{n.delivery_status}</td>
+                <td style={tdStyle} data-label="Date">{new Date(n.created_at).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>

@@ -19,7 +19,11 @@ import holidaysRouter from './routes/holidays';
 import pushRouter from './routes/push';
 import subjectsRouter from './routes/subjects';
 import auditLogsRouter from './routes/auditLogs';
+import teachersRouter from './routes/teachers';
+import roleTemplatesRouter from './routes/roleTemplates';
 import { authRateLimiter } from './middleware/rateLimiter';
+import { activityTracker } from './middleware/activityTracker';
+import { startActivityRetentionJob } from './jobs/activityRetention';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -85,6 +89,9 @@ app.get('/api/setup-seed', async (_req, res) => {
   }
 });
 
+// Activity tracking middleware (fire-and-forget, after auth sets req.user in route-level middleware)
+app.use(activityTracker);
+
 // Routes
 app.use('/api/auth', authRateLimiter, authRouter);
 app.use('/api/organization', organizationRouter);
@@ -102,6 +109,8 @@ app.use('/api/holidays', holidaysRouter);
 app.use('/api/push', pushRouter);
 app.use('/api/subjects', subjectsRouter);
 app.use('/api/audit-logs', auditLogsRouter);
+app.use('/api/teachers', teachersRouter);
+app.use('/api/role-templates', roleTemplatesRouter);
 
 // Global error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -116,6 +125,9 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 // Start server
 app.listen(PORT, () => {
   console.log(`Avento Platform server running on port ${PORT}`);
+
+  // Start scheduled jobs
+  startActivityRetentionJob();
 });
 
 export default app;

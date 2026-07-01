@@ -58,14 +58,14 @@ export default function UndeliverablePage() {
           <tbody>
             {notifications.map((n) => (
               <tr key={n.id}>
-                <td style={tdStyle}>{n.stakeholder_name ?? n.stakeholder_id}</td>
-                <td style={tdStyle}>{n.type}</td>
-                <td style={tdStyle}>{n.title}</td>
-                <td style={tdStyle}>{n.channel_used || '—'}</td>
-                <td style={tdStyle}>
+                <td style={tdStyle} data-label="Stakeholder">{n.stakeholder_name ?? n.stakeholder_id}</td>
+                <td style={tdStyle} data-label="Type">{n.type}</td>
+                <td style={tdStyle} data-label="Title">{n.title}</td>
+                <td style={tdStyle} data-label="Channel">{n.channel_used || '—'}</td>
+                <td style={tdStyle} data-label="Status">
                   <span style={{ color: '#dc2626' }}>{n.delivery_status}</span>
                 </td>
-                <td style={tdStyle}>{new Date(n.created_at).toLocaleString()}</td>
+                <td style={tdStyle} data-label="Timestamp">{new Date(n.created_at).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>

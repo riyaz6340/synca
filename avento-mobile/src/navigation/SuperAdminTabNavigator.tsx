@@ -20,12 +20,14 @@ import { Text } from 'react-native';
 
 import ChangePasswordScreen from '@/screens/shared/ChangePasswordScreen';
 import ProfileScreen from '@/screens/shared/ProfileScreen';
+import AnalyticsScreen from '@/screens/superadmin/AnalyticsScreen';
 import OrgDetailScreen from '@/screens/superadmin/OrgDetailScreen';
 import OrgFormScreen from '@/screens/superadmin/OrgFormScreen';
 import OrgListScreen from '@/screens/superadmin/OrgListScreen';
 import PlatformDashboardScreen from '@/screens/superadmin/PlatformDashboardScreen';
 import { useAuthStore } from '@/stores/auth';
 import type {
+  SuperAdminAnalyticsStackParamList,
   SuperAdminOrganizationsStackParamList,
   SuperAdminPlatformStackParamList,
   SuperAdminProfileStackParamList,
@@ -94,6 +96,20 @@ function ProfileStackNavigator() {
   );
 }
 
+const AnalyticsStack =
+  createNativeStackNavigator<SuperAdminAnalyticsStackParamList>();
+function AnalyticsStackNavigator() {
+  return (
+    <AnalyticsStack.Navigator>
+      <AnalyticsStack.Screen
+        name="Analytics"
+        component={AnalyticsScreen}
+        options={{ title: 'Analytics' }}
+      />
+    </AnalyticsStack.Navigator>
+  );
+}
+
 // --- Bottom tabs ------------------------------------------------------------
 
 const Tab = createBottomTabNavigator<SuperAdminTabsParamList>();
@@ -117,6 +133,11 @@ function SuperAdminTabs() {
         name="Organizations"
         component={OrganizationsStackNavigator}
         options={{ title: 'Orgs', tabBarIcon: tabIcon('🏢') }}
+      />
+      <Tab.Screen
+        name="SuperAdminAnalytics"
+        component={AnalyticsStackNavigator}
+        options={{ title: 'Analytics', tabBarIcon: tabIcon('📊') }}
       />
       <Tab.Screen
         name="SuperAdminProfile"

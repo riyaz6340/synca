@@ -78,7 +78,7 @@ export default function LoginPage() {
       const user = JSON.parse(localStorage.getItem('user') || '{}')
       if (user.role === 'SuperAdmin') {
         navigate('/super-admin', { replace: true })
-      } else if (user.role === 'Admin') {
+      } else if (user.role === 'Admin' || user.role === 'Teacher') {
         navigate('/admin', { replace: true })
       } else {
         navigate('/portal', { replace: true })

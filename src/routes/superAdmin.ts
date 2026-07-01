@@ -2,6 +2,12 @@ import { Router, Request, Response } from 'express';
 import { authenticate } from '../middleware/authenticate';
 import db from '../config/database';
 import bcrypt from 'bcrypt';
+import {
+  getDailyActiveUsers,
+  getWeeklyActiveUsers,
+  getMonthlyActiveUsers,
+  getYearlyActiveUsers,
+} from '../services/activityEventService';
 
 const router = Router();
 const SALT_ROUNDS = 12;
@@ -382,6 +388,118 @@ router.post('/organizations', async (req: Request, res: Response): Promise<void>
       res.status(400).json({ error: 'An organization with this name or admin email already exists' });
       return;
     }
+    throw error;
+  }
+});
+
+/**
+ * GET /analytics
+ * Returns DAU/WAU/MAU/YAU for the current period or a custom date range.
+ * Query params:
+ *   - date: YYYY-MM-DD (defaults to today)
+ *   - start_date: YYYY-MM-DD (optional, for custom range)
+ *   - end_date: YYYY-MM-DD (optional, for custom range)
+ *   - organization_id: UUID (optional filter)
+ */
+router.get('/analytics', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { date, start_date, end_date, organization_id } = req.query;
+
+    // Date range validation
+    if (start_date && end_date) {
+      const start = new Date(start_date as string);
+      const end = new Date(end_date as string);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        res.status(400).json({ error: 'Invalid date range: dates must be valid YYYY-MM-DD format' });
+        return;
+      }
+
+      if (end < start) {
+        res.status(400).json({ error: 'Invalid date range: end date must be greater than or equal to start date' });
+        return;
+      }
+
+      const diffMs = end.getTime() - start.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays > 365) {
+        res.status(400).json({ error: 'Invalid date range: span must not exceed 365 days' });
+        return;
+      }
+    }
+
+    // Determine the reference date
+    const referenceDate = (date as string) || (end_date as string) || new Date().toISOString().split('T')[0];
+    const refDateObj = new Date(referenceDate);
+
+    if (isNaN(refDateObj.getTime())) {
+      res.status(400).json({ error: 'Invalid date range: date must be valid YYYY-MM-DD format' });
+      return;
+    }
+
+    const orgFilter = organization_id as string | undefined;
+
+    const year = refDateObj.getUTCFullYear();
+    const month = refDateObj.getUTCMonth() + 1;
+
+    const [dau, wau, mau, yau] = await Promise.all([
+      getDailyActiveUsers(referenceDate, orgFilter),
+      getWeeklyActiveUsers(referenceDate, orgFilter),
+      getMonthlyActiveUsers(year, month, orgFilter),
+      getYearlyActiveUsers(year, orgFilter),
+    ]);
+
+    res.json({
+      date: referenceDate,
+      organization_id: orgFilter || null,
+      metrics: { dau, wau, mau, yau },
+    });
+  } catch (error) {
+    throw error;
+  }
+});
+
+/**
+ * GET /analytics/trend
+ * Returns 30-day DAU trend (one data point per day), ending today.
+ * Query params:
+ *   - organization_id: UUID (optional filter)
+ */
+router.get('/analytics/trend', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { organization_id } = req.query;
+    const orgFilter = organization_id as string | undefined;
+
+    const today = new Date();
+    const trend: Array<{ date: string; count: number }> = [];
+
+    // Generate dates for the last 30 days (including today)
+    const promises: Array<Promise<number>> = [];
+    const dates: string[] = [];
+
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setUTCDate(d.getUTCDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      dates.push(dateStr);
+      promises.push(getDailyActiveUsers(dateStr, orgFilter));
+    }
+
+    const counts = await Promise.all(promises);
+
+    for (let i = 0; i < dates.length; i++) {
+      trend.push({ date: dates[i], count: counts[i] });
+    }
+
+    res.json({
+      organization_id: orgFilter || null,
+      period: {
+        start: dates[0],
+        end: dates[dates.length - 1],
+      },
+      trend,
+    });
+  } catch (error) {
     throw error;
   }
 });

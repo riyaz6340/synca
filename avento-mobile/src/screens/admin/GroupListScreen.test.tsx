@@ -68,14 +68,14 @@ describe('GroupListScreen', () => {
     expect(screen.getByText('1 student')).toBeOnTheScreen();
   });
 
-  it('navigates to BulkMarking with the group id and name on tap', async () => {
+  it('navigates to AttendanceMode with the group id and name on tap', async () => {
     mockGetGroups.mockResolvedValue(GROUPS);
 
     renderWithProviders(<GroupListScreen />);
 
     fireEvent.press(await screen.findByTestId('group-row-g-1'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('BulkMarking', {
+    expect(mockNavigate).toHaveBeenCalledWith('AttendanceMode', {
       groupId: 'g-1',
       groupName: 'Class 1A',
     });

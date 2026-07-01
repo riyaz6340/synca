@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import apiClient from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
 
 interface LeaveRequest {
   id: string
@@ -7,6 +8,7 @@ interface LeaveRequest {
   person_name?: string
   person_metadata?: { roll_number?: string; [key: string]: unknown }
   group_name?: string
+  group_id?: string
   requested_by: string
   start_date: string
   end_date: string
@@ -17,6 +19,7 @@ interface LeaveRequest {
 }
 
 export default function LeaveRequestsPage() {
+  const { user, teacherContext } = useAuth()
   const [requests, setRequests] = useState<LeaveRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -25,17 +28,27 @@ export default function LeaveRequestsPage() {
   const [viewingRequest, setViewingRequest] = useState<LeaveRequest | null>(null)
   const [studentDetail, setStudentDetail] = useState<Record<string, unknown> | null>(null)
 
+  const isTeacher = user?.role === 'Teacher'
+  const assignedGroupIds = teacherContext?.assignedGroups.map(g => g.id) ?? []
+
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true)
       const res = await apiClient.get('/leave-requests')
-      setRequests(res.data.data ?? [])
+      let data: LeaveRequest[] = res.data.data ?? []
+      // Teacher: filter to only show leave requests from their assigned groups
+      if (isTeacher && assignedGroupIds.length > 0) {
+        data = data.filter(r => r.group_id && assignedGroupIds.includes(r.group_id))
+      } else if (isTeacher && assignedGroupIds.length === 0) {
+        data = []
+      }
+      setRequests(data)
     } catch {
       setError('Failed to load leave requests')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [isTeacher, assignedGroupIds])
 
   useEffect(() => {
     void fetchRequests()
@@ -75,6 +88,22 @@ export default function LeaveRequestsPage() {
   if (loading) return <p>Loading leave requests...</p>
   if (error) return <p style={{ color: 'red' }}>{error}</p>
 
+  // Empty state for Teachers with no assigned groups
+  if (isTeacher && assignedGroupIds.length === 0) {
+    return (
+      <div>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Leave Requests</h1>
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
+          <h2 style={{ fontSize: '1.1rem', color: '#475569', margin: '0 0 0.5rem' }}>No Groups Assigned</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>
+            You haven't been assigned to any classes yet. Please contact your Admin to get group access for leave request management.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Leave Requests</h1>
@@ -97,18 +126,18 @@ export default function LeaveRequestsPage() {
             const displayName = r.person_name || r.person_id.substring(0, 8)
             return (
               <tr key={r.id}>
-                <td style={tdStyle}>
+                <td style={tdStyle} data-label="Student">
                   <strong>{displayName}</strong>
                   {rollNo && <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>Roll: {rollNo}</span>}
                 </td>
-                <td style={tdStyle}>{r.group_name || '—'}</td>
-                <td style={tdStyle}>{formatDate(r.start_date)}</td>
-                <td style={tdStyle}>{formatDate(r.end_date)}</td>
-                <td style={tdStyle}>{r.reason}</td>
-                <td style={tdStyle}>
+                <td style={tdStyle} data-label="Class">{r.group_name || '—'}</td>
+                <td style={tdStyle} data-label="From">{formatDate(r.start_date)}</td>
+                <td style={tdStyle} data-label="To">{formatDate(r.end_date)}</td>
+                <td style={tdStyle} data-label="Reason">{r.reason}</td>
+                <td style={tdStyle} data-label="Status">
                   <span style={{ color: statusColor(r.status) }}>{r.status}</span>
                 </td>
-                <td style={tdStyle}>
+                <td style={tdStyle} data-label="Actions">
                   <button onClick={() => void openRequestDetail(r)} style={{ ...btnSmall, color: '#2563eb' }}>View</button>
                   {r.status === 'Pending' && (
                     <>

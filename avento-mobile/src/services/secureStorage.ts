@@ -103,6 +103,9 @@ export async function saveSession(session: SecureSession): Promise<void> {
       token: session.token,
       user: JSON.stringify(session.user),
       biometricEnabled: session.biometricEnabled,
+      organizationName: session.organizationName ?? null,
+      logoUrl: session.logoUrl ?? null,
+      primaryColor: session.primaryColor ?? null,
     });
     await SecureStore.setItemAsync(STORAGE_KEYS.SESSION, payload);
     await SecureStore.setItemAsync(STORAGE_KEYS.TOKEN, session.token);
@@ -134,12 +137,18 @@ export async function getSession(): Promise<SecureSession | null> {
       token: string;
       user: string;
       biometricEnabled: boolean;
+      organizationName?: string | null;
+      logoUrl?: string | null;
+      primaryColor?: string | null;
     };
     const user = JSON.parse(parsed.user) as AppUser;
     return {
       token: parsed.token,
       user,
       biometricEnabled: parsed.biometricEnabled,
+      organizationName: parsed.organizationName ?? undefined,
+      logoUrl: parsed.logoUrl ?? undefined,
+      primaryColor: parsed.primaryColor ?? undefined,
     };
   } catch (error) {
     throw new SecureStorageError('read', 'Stored session is corrupted', error);

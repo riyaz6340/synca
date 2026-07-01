@@ -196,10 +196,10 @@ export default function GroupsPage() {
         <tbody>
           {groups.map((g) => (
             <tr key={g.id}>
-              <td style={tdStyle}>{g.name}</td>
-              <td style={tdStyle}>{g.description}</td>
-              <td style={tdStyle}>{g.member_count ?? g.members?.length ?? '—'}</td>
-              <td style={tdStyle}>
+              <td style={tdStyle} data-label="Name">{g.name}</td>
+              <td style={tdStyle} data-label="Description">{g.description}</td>
+              <td style={tdStyle} data-label="Members">{g.member_count ?? g.members?.length ?? '—'}</td>
+              <td style={tdStyle} data-label="Actions">
                 <button onClick={() => openEdit(g)} style={btnSmall}>Edit</button>
                 <button onClick={() => void openManageMembers(g)} style={{ ...btnSmall, marginLeft: '0.5rem' }}>Members</button>
                 <button onClick={() => void openSubjects(g)} style={{ ...btnSmall, marginLeft: '0.5rem', color: '#7c3aed' }}>Subjects</button>

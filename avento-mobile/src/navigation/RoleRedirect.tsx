@@ -36,6 +36,9 @@ export default function RoleRedirect({
     case 'SuperAdminTabs':
       Navigator = require('./SuperAdminTabNavigator').default as ComponentType;
       break;
+    case 'TeacherTabs':
+      Navigator = require('./TeacherTabNavigator').default as ComponentType;
+      break;
     case 'ParentTabs':
     default:
       Navigator = require('./ParentTabNavigator').default as ComponentType;

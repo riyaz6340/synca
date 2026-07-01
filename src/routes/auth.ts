@@ -98,6 +98,12 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     signOptions
   );
 
+  // Resolve organization name and branding metadata for the response
+  const organization = await db('organizations')
+    .select('name', 'metadata')
+    .where({ id: user.organization_id })
+    .first();
+
   // Audit log: successful login
   void logAudit({
     organization_id: user.organization_id,
@@ -108,14 +114,29 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     ip_address: req.ip,
   });
 
+  const responseUser: Record<string, unknown> = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    organization_id: user.organization_id,
+  };
+
+  // Include organization_name and branding fields if the organization record was found
+  if (organization) {
+    responseUser.organization_name = organization.name;
+    const meta = typeof organization.metadata === 'string'
+      ? JSON.parse(organization.metadata)
+      : organization.metadata ?? {};
+    responseUser.logo_url = meta.logo_url ?? null;
+    responseUser.primary_color = meta.primary_color ?? null;
+  } else {
+    responseUser.logo_url = null;
+    responseUser.primary_color = null;
+  }
+
   res.json({
     token,
-    user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      organization_id: user.organization_id,
-    },
+    user: responseUser,
   });
 });
 

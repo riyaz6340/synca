@@ -38,6 +38,10 @@ import LeaveManagementScreen, {
 import ReportsScreen from '@/screens/admin/ReportsScreen';
 import StudentFormScreen from '@/screens/admin/StudentFormScreen';
 import StudentsScreen from '@/screens/admin/StudentsScreen';
+import AttendanceCalendarScreen from '@/screens/attendance/AttendanceCalendarScreen';
+import AttendanceModeScreen from '@/screens/attendance/AttendanceModeScreen';
+import AttendanceSummaryScreen from '@/screens/attendance/AttendanceSummaryScreen';
+import SequentialAttendanceScreen from '@/screens/attendance/SequentialAttendanceScreen';
 import ChangePasswordScreen from '@/screens/shared/ChangePasswordScreen';
 import ProfileScreen from '@/screens/shared/ProfileScreen';
 import { useAuthStore } from '@/stores/auth';
@@ -51,6 +55,7 @@ import type {
 
 import RoleRedirect from './RoleRedirect';
 import { isNavigatorAllowedForRole } from './roleGuard';
+import { makePlaceholderScreen } from './placeholders';
 
 // --- Per-tab native stacks --------------------------------------------------
 
@@ -79,9 +84,29 @@ function AttendanceStackNavigator() {
         options={{ title: 'Mark Attendance' }}
       />
       <AttendanceStack.Screen
+        name="AttendanceCalendar"
+        component={AttendanceCalendarScreen}
+        options={{ title: 'Attendance Calendar' }}
+      />
+      <AttendanceStack.Screen
+        name="AttendanceMode"
+        component={AttendanceModeScreen}
+        options={{ title: 'Choose Mode' }}
+      />
+      <AttendanceStack.Screen
         name="BulkMarking"
         component={BulkMarkingScreen}
         options={{ title: 'Mark Group' }}
+      />
+      <AttendanceStack.Screen
+        name="SequentialAttendance"
+        component={SequentialAttendanceScreen}
+        options={{ title: 'Sequential Marking' }}
+      />
+      <AttendanceStack.Screen
+        name="AttendanceSummary"
+        component={AttendanceSummaryScreen}
+        options={{ title: 'Attendance Summary' }}
       />
     </AttendanceStack.Navigator>
   );

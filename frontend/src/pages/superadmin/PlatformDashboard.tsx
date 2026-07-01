@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import apiClient from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import AnalyticsDashboardWidget from '../../components/AnalyticsDashboardWidget'
 
 interface Overview {
   total_organizations: number
@@ -178,6 +179,9 @@ export default function PlatformDashboard() {
         <MetricCard label="Monthly Revenue" value={`₹${data.overview.monthly_revenue.toLocaleString()}`} color="#f59e0b" />
         <MetricCard label="Attendance Records" value={data.overview.total_attendance_records.toLocaleString()} color="#6366f1" />
       </div>
+
+      {/* User Activity Analytics */}
+      <AnalyticsDashboardWidget />
 
       {/* Breakdown Section */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>

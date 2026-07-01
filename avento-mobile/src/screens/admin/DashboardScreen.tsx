@@ -22,7 +22,8 @@
  *
  * Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5
  */
-import { StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 
 import { adminApi, type AdminDashboardSummary } from '@/api/admin';
@@ -31,10 +32,13 @@ import {
   ErrorState,
   PullToRefresh,
   SkeletonLoader,
+  SkeletonBlock,
   colors,
   radius,
   spacing,
 } from '@/components';
+import { useAuthStore } from '@/stores/auth';
+import { getDisplayName } from '@/utils/getDisplayName';
 
 /** Format a Date as a `YYYY-MM-DD` string in the device's local timezone. */
 export function toDateString(date: Date = new Date()): string {
@@ -158,6 +162,10 @@ function StatTile({ label, count, percentage, color, testID }: StatTileProps) {
 
 export default function DashboardScreen() {
   const date = toDateString();
+  const organizationName = useAuthStore((state) => state.organizationName);
+  const logoUrl = useAuthStore((state) => state.logoUrl);
+  const isAuthLoading = useAuthStore((state) => state.isLoading);
+  const [logoVisible, setLogoVisible] = useState(true);
 
   const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: adminDashboardQueryKey(date),
@@ -195,6 +203,32 @@ export default function DashboardScreen() {
       contentContainerStyle={styles.content}
       style={styles.container}
     >
+      {/* Organization branding (Requirement 4.1, 4.2, 4.3, 4.4, 8.1, 8.2, 8.3, 8.4) */}
+      {logoUrl && logoVisible && (
+        <Image
+          source={{ uri: logoUrl }}
+          style={styles.orgLogo}
+          resizeMode="contain"
+          onError={() => setLogoVisible(false)}
+          accessible={true}
+          accessibilityLabel="Organization logo"
+          testID="dashboard-org-logo"
+        />
+      )}
+      {isAuthLoading ? (
+        <View testID="dashboard-org-skeleton">
+          <SkeletonBlock
+            width="60%"
+            height={22}
+            style={styles.orgNameSkeleton}
+          />
+        </View>
+      ) : (
+        <Text style={styles.orgName} testID="dashboard-org-name">
+          {getDisplayName(organizationName)}
+        </Text>
+      )}
+
       <Text style={styles.heading}>Today's Attendance</Text>
       <Text style={styles.date} testID="dashboard-date">
         {summary.date}
@@ -266,6 +300,22 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
+  },
+  orgName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: spacing.sm,
+  },
+  orgLogo: {
+    maxWidth: 120,
+    maxHeight: 40,
+    width: 120,
+    height: 40,
+    marginBottom: spacing.sm,
+  },
+  orgNameSkeleton: {
+    marginBottom: spacing.sm,
   },
   heading: {
     fontSize: 22,

@@ -19,7 +19,7 @@
  * Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5
  */
 import { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { useQuery } from '@tanstack/react-query';
 
@@ -28,12 +28,15 @@ import {
   EmptyState,
   ErrorState,
   OfflineBanner,
+  SkeletonBlock,
   SkeletonLoader,
   StatusBadge,
   colors,
   radius,
   spacing,
 } from '@/components';
+import { useAuthStore } from '@/stores/auth';
+import { getDisplayName } from '@/utils/getDisplayName';
 import type { PersonWithStatus } from '@/types/models';
 
 /** React Query key for the parent's children-with-status list. */
@@ -80,6 +83,10 @@ function useIsOffline(): boolean {
 
 export default function HomeScreen() {
   const offline = useIsOffline();
+  const organizationName = useAuthStore((state) => state.organizationName);
+  const logoUrl = useAuthStore((state) => state.logoUrl);
+  const isAuthLoading = useAuthStore((state) => state.isLoading);
+  const [logoVisible, setLogoVisible] = useState(true);
 
   const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: PARENT_PERSONS_QUERY_KEY,
@@ -110,6 +117,34 @@ export default function HomeScreen() {
   return (
     <View style={styles.container} testID="home-screen">
       <OfflineBanner offline={offline} />
+
+      {/* Organization branding (Requirement 4.1, 4.2, 4.3, 4.4, 8.1, 8.2, 8.3, 8.4) */}
+      <View style={styles.orgNameContainer}>
+        {logoUrl && logoVisible && (
+          <Image
+            source={{ uri: logoUrl }}
+            style={styles.orgLogo}
+            resizeMode="contain"
+            onError={() => setLogoVisible(false)}
+            accessible={true}
+            accessibilityLabel="Organization logo"
+            testID="home-org-logo"
+          />
+        )}
+        {isAuthLoading ? (
+          <View testID="home-org-skeleton">
+            <SkeletonBlock
+              width="60%"
+              height={22}
+              style={styles.orgNameSkeleton}
+            />
+          </View>
+        ) : (
+          <Text style={styles.orgName} testID="home-org-name">
+            {getDisplayName(organizationName)}
+          </Text>
+        )}
+      </View>
 
       {/* Refetch failed but cached data remains → warn it may be outdated. */}
       {isError && data ? (
@@ -176,6 +211,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  orgNameContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+  },
+  orgLogo: {
+    maxWidth: 120,
+    maxHeight: 40,
+    width: 120,
+    height: 40,
+    marginBottom: spacing.sm,
+  },
+  orgName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  orgNameSkeleton: {
+    marginBottom: spacing.xs,
   },
   listContent: {
     padding: spacing.lg,

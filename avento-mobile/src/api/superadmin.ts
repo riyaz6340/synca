@@ -190,4 +190,27 @@ export const superAdminApi = {
   },
 };
 
+// ─── Analytics types ─────────────────────────────────────────────────────────
+
+/** Response from GET /api/super-admin/analytics. */
+export interface AnalyticsMetricsResponse {
+  dau: number;
+  wau: number;
+  mau: number;
+  yau: number;
+}
+
+export const superAdminAnalyticsApi = {
+  /**
+   * Fetch DAU/WAU/MAU/YAU metrics for the current period.
+   * GET /api/super-admin/analytics
+   */
+  async getAnalyticsMetrics(): Promise<AnalyticsMetricsResponse> {
+    const res = await apiClient.get<AnalyticsMetricsResponse>(
+      '/api/super-admin/analytics',
+    );
+    return res.data;
+  },
+};
+
 export default superAdminApi;

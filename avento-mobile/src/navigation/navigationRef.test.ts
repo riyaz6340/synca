@@ -9,6 +9,14 @@
  * Validates: Requirements 22.3
  */
 
+import { useAuthStore } from '@/stores/auth';
+
+jest.mock('@/stores/auth', () => ({
+  useAuthStore: {
+    getState: jest.fn(() => ({ user: null })),
+  },
+}));
+
 import { navigationRef, navigateToTarget } from './navigationRef';
 
 describe('navigateToTarget', () => {

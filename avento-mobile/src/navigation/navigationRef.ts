@@ -21,6 +21,8 @@
 import { createNavigationContainerRef } from '@react-navigation/native';
 
 import type { NavigationTarget } from '@/services/pushNotifications';
+import { useAuthStore } from '@/stores/auth';
+import type { AppRole } from '@/types/auth';
 import type { RootStackParamList } from '@/types/navigation';
 
 /**
@@ -30,21 +32,26 @@ import type { RootStackParamList } from '@/types/navigation';
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 /**
- * Maps a flat push target screen name to the nested route path it lives under,
- * expressed as the arguments to `navigationRef.navigate(...)`.
+ * Maps a flat push target screen name + user role to the nested route path it
+ * lives under, expressed as the arguments to `navigationRef.navigate(...)`.
  *
  * React Navigation reaches a deeply-nested screen by navigating to the top-level
  * route and passing a nested `screen`/`params` descriptor. We encode that here
- * for the two deep-link destinations the push service can emit:
+ * for the deep-link destinations the push service can emit:
  *
  *  - `AttendanceHistory`  → ParentTabs → Attendance stack → AttendanceHistory
  *  - `AnnouncementDetail` → ParentTabs → Announcements stack → AnnouncementDetail
+ *  - `LeaveList`          → ParentTabs → Leave stack → LeaveList (any role)
+ *  - `LeaveManagement`    → Role-dependent tab → Leave management screen
  *
  * Returns `null` for an unmapped screen so the caller can fall back to a flat
  * best-effort navigate.
+ *
+ * Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5
  */
-function nestedRouteFor(
+export function nestedRouteFor(
   target: NavigationTarget,
+  role: AppRole | null | undefined,
 ): { name: string; params: object } | null {
   switch (target.screen) {
     case 'AttendanceHistory':
@@ -69,6 +76,67 @@ function nestedRouteFor(
           },
         },
       };
+    case 'LeaveList':
+      // Stakeholder (Parent) is the only role that lands on LeaveList.
+      // Null/undefined role defaults to ParentTabs (least-privileged).
+      return {
+        name: 'ParentTabs',
+        params: {
+          screen: 'Leave',
+          params: {
+            screen: 'LeaveList',
+            params: target.params,
+          },
+        },
+      };
+    case 'LeaveManagement':
+      switch (role) {
+        case 'Admin':
+          return {
+            name: 'AdminTabs',
+            params: {
+              screen: 'Management',
+              params: {
+                screen: 'LeaveManagement',
+                params: target.params,
+              },
+            },
+          };
+        case 'SuperAdmin':
+          return {
+            name: 'SuperAdminTabs',
+            params: {
+              screen: 'Organizations',
+              params: {
+                screen: 'OrgList',
+                params: target.params,
+              },
+            },
+          };
+        case 'Teacher':
+          return {
+            name: 'TeacherTabs',
+            params: {
+              screen: 'TeacherLeave',
+              params: {
+                screen: 'LeaveManagement',
+                params: target.params,
+              },
+            },
+          };
+        default:
+          // Fallback: least-privileged (ParentTabs)
+          return {
+            name: 'ParentTabs',
+            params: {
+              screen: 'Leave',
+              params: {
+                screen: 'LeaveList',
+                params: target.params,
+              },
+            },
+          };
+      }
     default:
       return null;
   }
@@ -96,7 +164,9 @@ export function navigateToTarget(target: NavigationTarget): void {
     params?: object,
   ) => void;
 
-  const nested = nestedRouteFor(target);
+  const role = useAuthStore.getState().user?.role ?? null;
+
+  const nested = nestedRouteFor(target, role);
   if (nested) {
     navigate(nested.name, nested.params);
     return;

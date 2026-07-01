@@ -93,6 +93,7 @@ const LOGGED_OUT = {
   isAuthenticated: false,
   isLoading: false,
   biometricEnabled: false,
+  organizationName: null,
 };
 
 beforeEach(() => {
@@ -165,6 +166,7 @@ describe('login', () => {
       token,
       user: USER,
       biometricEnabled: false,
+      organizationName: undefined,
     });
 
     const state = useAuthStore.getState();

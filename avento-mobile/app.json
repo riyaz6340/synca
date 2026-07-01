@@ -42,6 +42,13 @@
         "projectId": "7f07c06f-d0d0-46fc-a4be-a3950109cf7d"
       }
     },
-    "owner": "riyaz6340s-team"
+    "owner": "riyaz6340s-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7f07c06f-d0d0-46fc-a4be-a3950109cf7d"
+    },
+    "ios": {}
   }
 }

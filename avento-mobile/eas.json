@@ -9,13 +9,15 @@
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleDebug"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "android": {
@@ -23,7 +25,8 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://avento-api.onrender.com"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {

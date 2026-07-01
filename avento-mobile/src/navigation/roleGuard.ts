@@ -15,10 +15,10 @@
  * Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5
  */
 
-import type { AppRole } from '@/types/auth';
+import type { AppRole, TeacherPermission } from '@/types/auth';
 
 /** The top-level tab navigators, keyed by their RootStack route name. */
-export type RoleNavigator = 'ParentTabs' | 'AdminTabs' | 'SuperAdminTabs';
+export type RoleNavigator = 'ParentTabs' | 'AdminTabs' | 'SuperAdminTabs' | 'TeacherTabs';
 
 /**
  * The ordered tab-route names for each role's bottom-tab navigator. These match
@@ -42,13 +42,23 @@ export const ADMIN_TABS = [
 export const SUPER_ADMIN_TABS = [
   'Platform',
   'Organizations',
+  'SuperAdminAnalytics',
   'SuperAdminProfile',
+] as const;
+
+export const TEACHER_TABS = [
+  'TeacherAttendance',
+  'TeacherAnnouncements',
+  'TeacherLeave',
+  'TeacherStudents',
+  'TeacherProfile',
 ] as const;
 
 export type ParentTabName = (typeof PARENT_TABS)[number];
 export type AdminTabName = (typeof ADMIN_TABS)[number];
 export type SuperAdminTabName = (typeof SUPER_ADMIN_TABS)[number];
-export type AnyTabName = ParentTabName | AdminTabName | SuperAdminTabName;
+export type TeacherTabName = (typeof TEACHER_TABS)[number];
+export type AnyTabName = ParentTabName | AdminTabName | SuperAdminTabName | TeacherTabName;
 
 /**
  * The "home" / dashboard tab for each role — the redirect target when a user
@@ -58,6 +68,7 @@ const DASHBOARD_TAB: Record<RoleNavigator, AnyTabName> = {
   ParentTabs: 'Home',
   AdminTabs: 'AdminDashboard',
   SuperAdminTabs: 'Platform',
+  TeacherTabs: 'TeacherAttendance',
 };
 
 /**
@@ -71,6 +82,8 @@ export function navigatorForRole(role: AppRole | null | undefined): RoleNavigato
       return 'AdminTabs';
     case 'SuperAdmin':
       return 'SuperAdminTabs';
+    case 'Teacher':
+      return 'TeacherTabs';
     case 'Stakeholder':
       return 'ParentTabs';
     default:
@@ -90,6 +103,8 @@ export function tabSetForRole(
       return [...ADMIN_TABS];
     case 'SuperAdminTabs':
       return [...SUPER_ADMIN_TABS];
+    case 'TeacherTabs':
+      return [...TEACHER_TABS];
     case 'ParentTabs':
     default:
       return [...PARENT_TABS];
@@ -126,4 +141,36 @@ export function isTabAllowedForRole(
   role: AppRole | null | undefined,
 ): boolean {
   return (tabSetForRole(role) as readonly string[]).includes(tab);
+}
+
+// ---------------------------------------------------------------------------
+// Teacher permission → tab mapping (Requirement 1.6, 11.7)
+// ---------------------------------------------------------------------------
+
+/**
+ * Mapping from each Teacher tab to the permissions that grant access to it. A
+ * tab is visible if the Teacher holds at least one of its listed permissions.
+ */
+export const TEACHER_TAB_PERMISSIONS: Record<TeacherTabName, TeacherPermission[]> = {
+  TeacherAttendance: ['mark_attendance', 'view_attendance_reports'],
+  TeacherAnnouncements: ['create_announcements', 'publish_announcements'],
+  TeacherLeave: ['approve_leave_requests', 'view_leave_requests'],
+  TeacherStudents: ['manage_students'],
+  TeacherProfile: [], // always visible
+};
+
+/**
+ * Filter Teacher tabs to only those the user has permission for. The Profile
+ * tab is always included. Returns the filtered tab names in their canonical
+ * order.
+ */
+export function visibleTeacherTabs(
+  permissions: TeacherPermission[],
+): TeacherTabName[] {
+  return TEACHER_TABS.filter((tab) => {
+    const required = TEACHER_TAB_PERMISSIONS[tab];
+    // Empty means always visible (Profile tab)
+    if (required.length === 0) return true;
+    return required.some((perm) => permissions.includes(perm));
+  }) as TeacherTabName[];
 }

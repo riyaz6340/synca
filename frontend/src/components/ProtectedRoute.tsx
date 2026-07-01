@@ -17,6 +17,10 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    // Teacher can access Admin routes (with filtered navigation)
+    if (user.role === 'Teacher' && allowedRoles.includes('Admin')) {
+      return <Outlet />
+    }
     return <Navigate to="/login" replace />
   }
 

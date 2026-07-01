@@ -19,6 +19,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
+import { useLayoutEffect } from 'react';
 
 import { adminApi } from '@/api/admin';
 import {
@@ -39,6 +40,22 @@ type NavProp = NativeStackNavigationProp<AdminAttendanceStackParamList, 'GroupLi
 
 export default function GroupListScreen() {
   const navigation = useNavigation<NavProp>();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          onPress={() => navigation.navigate('AttendanceCalendar')}
+          accessibilityRole="button"
+          accessibilityLabel="Attendance Calendar"
+          testID="calendar-nav-button"
+          style={{ marginRight: spacing.md }}
+        >
+          <Text style={{ fontSize: 22 }}>📅</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
   const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: ADMIN_GROUPS_QUERY_KEY,
@@ -85,7 +102,7 @@ export default function GroupListScreen() {
               testID={`group-row-${item.id}`}
               style={styles.row}
               onPress={() =>
-                navigation.navigate('BulkMarking', {
+                navigation.navigate('AttendanceMode', {
                   groupId: item.id,
                   groupName: item.name,
                 })

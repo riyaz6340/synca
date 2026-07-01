@@ -1,5 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import apiClient from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
+import AttendanceModeSelector from '../../components/AttendanceModeSelector'
 
 interface Group { id: string; name: string }
 interface Person { id: string; name: string; roll_number?: string }
@@ -7,8 +10,12 @@ interface Subject { id: string; name: string; teacher_name?: string; period_numb
 type MarkingMode = 'absent_only' | 'present_only'
 
 export default function AttendancePage() {
+  const { user, teacherContext } = useAuth()
+  const navigate = useNavigate()
   const [groups, setGroups] = useState<Group[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState('')
+  const [showModeSelector, setShowModeSelector] = useState(false)
+  const [pendingGroupId, setPendingGroupId] = useState('')
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })
   const [members, setMembers] = useState<Person[]>([])
@@ -24,12 +31,47 @@ export default function AttendancePage() {
   const [success, setSuccess] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
+  const isTeacher = user?.role === 'Teacher'
+
   const fetchGroups = useCallback(async () => {
-    try { const res = await apiClient.get('/groups'); setGroups(res.data.groups ?? []) }
+    try {
+      if (isTeacher && teacherContext) {
+        // Teacher: only show assigned groups
+        setGroups(teacherContext.assignedGroups)
+      } else {
+        // Admin: show all groups
+        const res = await apiClient.get('/groups')
+        setGroups(res.data.groups ?? [])
+      }
+    }
     catch { setError('Failed to load classes') }
-  }, [])
+  }, [isTeacher, teacherContext])
 
   useEffect(() => { void fetchGroups() }, [fetchGroups])
+
+  // Show mode selector when clicking a group for the first time (or a different group)
+  function handleGroupClick(groupId: string) {
+    if (!groupId) { void handleGroupChange(groupId); return }
+    if (groupId === selectedGroupId) {
+      // Already selected, show mode selector again
+      setPendingGroupId(groupId)
+      setShowModeSelector(true)
+    } else {
+      // New group: show mode selector
+      setPendingGroupId(groupId)
+      setShowModeSelector(true)
+    }
+  }
+
+  function handleModeSelect(mode: 'sequential' | 'bulk') {
+    setShowModeSelector(false)
+    if (mode === 'sequential') {
+      navigate(`/admin/attendance/sequential/${pendingGroupId}`)
+    } else {
+      // Bulk mode — load the group data into this page
+      void handleGroupChange(pendingGroupId)
+    }
+  }
 
   // Load members + subjects when group changes
   async function handleGroupChange(groupId: string) {
@@ -68,7 +110,7 @@ export default function AttendancePage() {
         params: { start_date: date, end_date: date, group_id: groupId, limit: 100 }
       })
       const records = res.data.data ?? []
-      const periods = [...new Set(records.map((r: { period_label: string }) => r.period_label))]
+      const periods: string[] = [...new Set(records.map((r: { period_label: string }) => r.period_label))]
       setMarkedPeriods(periods)
     } catch { setMarkedPeriods([]) }
   }
@@ -134,15 +176,33 @@ export default function AttendancePage() {
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>✅ Record Attendance</h1>
 
+      {/* Empty state for Teachers with no assigned groups */}
+      {isTeacher && groups.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
+          <h2 style={{ fontSize: '1.1rem', color: '#475569', margin: '0 0 0.5rem' }}>No Groups Assigned</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>
+            You haven't been assigned to any classes yet. Please contact your Admin to get group access.
+          </p>
+        </div>
+      )}
+
       {/* Class Selector */}
       <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         {groups.map(g => (
-          <button key={g.id} onClick={() => void handleGroupChange(g.id)}
+          <button key={g.id} onClick={() => handleGroupClick(g.id)}
             style={{ padding: '0.45rem 0.9rem', borderRadius: '20px', border: g.id === selectedGroupId ? '2px solid #3b82f6' : '1px solid #e2e8f0', background: g.id === selectedGroupId ? '#eff6ff' : '#fff', color: g.id === selectedGroupId ? '#1d4ed8' : '#475569', cursor: 'pointer', fontSize: '0.85rem', fontWeight: g.id === selectedGroupId ? 600 : 400 }}>
             {g.name}
           </button>
         ))}
       </div>
+
+      {/* Attendance Mode Selector Modal */}
+      <AttendanceModeSelector
+        isOpen={showModeSelector}
+        onClose={() => setShowModeSelector(false)}
+        onSelect={handleModeSelect}
+      />
 
       {selectedGroupId && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>

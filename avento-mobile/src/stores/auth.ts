@@ -37,6 +37,7 @@ import { create } from 'zustand';
 
 import { authApi } from '@/api/auth';
 import { configureApiClient } from '@/api/client';
+import { organizationApi } from '@/api/organization';
 import { biometric } from '@/services/biometric';
 import { secureStorage } from '@/services/secureStorage';
 import type { AuthState } from '@/types/auth';
@@ -200,6 +201,9 @@ const LOGGED_OUT = {
   isAuthenticated: false,
   isLoading: false,
   biometricEnabled: false,
+  organizationName: null,
+  logoUrl: null,
+  primaryColor: null,
 } as const;
 
 /**
@@ -225,6 +229,33 @@ async function clearLocalSession(): Promise<void> {
   useAuthStore.setState({ ...LOGGED_OUT });
 }
 
+/**
+ * Fetch the organization name from the API and update both the Zustand store
+ * and SecureStorage. Fires asynchronously after session restore when the
+ * persisted session has no cached organization name (Requirement 6.5).
+ *
+ * Errors are swallowed: the UI will fall back to "My School" until the next
+ * successful fetch.
+ */
+async function fetchAndCacheOrganizationName(
+  session: { token: string; user: any; biometricEnabled: boolean; organizationName?: string },
+  currentToken: string,
+): Promise<void> {
+  try {
+    const name = await organizationApi.getOrganizationName();
+    if (name) {
+      useAuthStore.setState({ organizationName: name });
+      await secureStorage.saveSession({
+        ...session,
+        token: currentToken,
+        organizationName: name,
+      });
+    }
+  } catch {
+    // Best-effort: UI falls back to "My School" via getDisplayName.
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Store definition.
 // ---------------------------------------------------------------------------
@@ -235,6 +266,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   biometricEnabled: false,
+  organizationName: null,
+  logoUrl: null,
+  primaryColor: null,
 
   login: async (email, password, orgName, orgId) => {
     set({ isLoading: true });
@@ -246,9 +280,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         organization_id: orgId,
       });
 
+      // Extract organization_name from the login response user object
+      // (Requirement 6.1 — store on login).
+      const organizationName = user.organization_name ?? null;
+
+      // Extract branding fields from the login response user object
+      // (Requirement 7.1, 7.5 — store on login).
+      const logoUrl = user.logo_url ?? null;
+      const primaryColor = user.primary_color ?? null;
+
       // Persist before flipping state so a crash mid-login cannot leave us
       // "authenticated" with nothing stored.
-      await secureStorage.saveSession({ token, user, biometricEnabled: false });
+      await secureStorage.saveSession({
+        token,
+        user,
+        biometricEnabled: false,
+        organizationName: organizationName ?? undefined,
+        logoUrl: logoUrl ?? undefined,
+        primaryColor: primaryColor ?? undefined,
+      });
 
       set({
         token,
@@ -256,6 +306,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isAuthenticated: true,
         isLoading: false,
         biometricEnabled: false,
+        organizationName,
+        logoUrl,
+        primaryColor,
       });
 
       scheduleTokenRefresh(token);
@@ -285,13 +338,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     const { token: newToken } = await authApi.refreshToken(token);
 
-    // Preserve the rest of the stored session (user + biometric flag).
+    // Preserve the rest of the stored session (user + biometric flag + org name + branding).
     const session = await secureStorage.getSession();
     const user = session?.user ?? get().user;
     const biometricEnabled = session?.biometricEnabled ?? get().biometricEnabled;
+    const organizationName = session?.organizationName ?? get().organizationName ?? undefined;
+    const logoUrl = session?.logoUrl ?? get().logoUrl ?? undefined;
+    const primaryColor = session?.primaryColor ?? get().primaryColor ?? undefined;
 
     if (user) {
-      await secureStorage.saveSession({ token: newToken, user, biometricEnabled });
+      await secureStorage.saveSession({ token: newToken, user, biometricEnabled, organizationName, logoUrl, primaryColor });
     } else {
       await secureStorage.saveToken(newToken);
     }
@@ -322,8 +378,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             isAuthenticated: true,
             isLoading: false,
             biometricEnabled: session.biometricEnabled,
+            organizationName: session.organizationName ?? null,
+            logoUrl: session.logoUrl ?? null,
+            primaryColor: session.primaryColor ?? null,
           });
           scheduleTokenRefresh(newToken);
+
+          // Requirement 6.5: If cached organizationName is missing, fetch from API.
+          if (!session.organizationName) {
+            void fetchAndCacheOrganizationName(session, newToken);
+          }
         } catch {
           // Requirement 1.6: refresh failed → clear and remain logged out.
           await clearLocalSession();
@@ -338,8 +402,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isAuthenticated: true,
         isLoading: false,
         biometricEnabled: session.biometricEnabled,
+        organizationName: session.organizationName ?? null,
+        logoUrl: session.logoUrl ?? null,
+        primaryColor: session.primaryColor ?? null,
       });
       scheduleTokenRefresh(session.token);
+
+      // Requirement 6.5: If cached organizationName is missing, fetch from API.
+      if (!session.organizationName) {
+        void fetchAndCacheOrganizationName(session, session.token);
+      }
     } catch {
       // A Secure Storage read error means the session is unusable → force out.
       await clearLocalSession();

@@ -61,7 +61,9 @@ a:hover {
 
 /* Mobile-first improvements */
 @media (max-width: 768px) {
-  /* Convert tables to card layout on mobile */
+  /* Convert data tables into labeled cards on mobile.
+     Each row becomes a stacked card; each cell shows its column header
+     (via a `data-label` attribute) beside the value so rows stay readable. */
   table {
     display: block !important;
     width: 100% !important;
@@ -72,22 +74,43 @@ a:hover {
   table tbody {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.5rem !important;
+    gap: 0.6rem !important;
   }
   table tbody tr {
     display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.3rem 0.75rem !important;
-    padding: 0.75rem !important;
+    flex-direction: column !important;
+    gap: 0.3rem !important;
+    padding: 0.85rem !important;
     border: 1px solid #e2e8f0 !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     background: #fff !important;
-    align-items: center !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
   }
   table tbody tr td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
     border: none !important;
-    padding: 0 !important;
-    font-size: 0.85rem !important;
+    padding: 0.15rem 0 !important;
+    font-size: 0.88rem !important;
+    text-align: right !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+  /* Render the column header as a label before each cell's value. */
+  table tbody tr td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.78rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+  /* Cells without a label (e.g. action buttons) align to the right. */
+  table tbody tr td:not([data-label]) {
+    justify-content: flex-end !important;
   }
   /* Make buttons touch-friendly on mobile */
   button {
@@ -98,9 +121,23 @@ a:hover {
   input, select, textarea {
     font-size: 16px !important; /* Prevents iOS zoom */
     min-height: 40px !important;
+    max-width: 100% !important;
   }
   /* Reduce padding on main content */
   .admin-main {
     padding: 0.75rem !important;
   }
+  /* Prevent horizontal overflow for tab bars / inline button rows.
+     Opt-in via the `.scroll-x-mobile` class on a flex container. */
+  .scroll-x-mobile {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* Skeleton loading pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }

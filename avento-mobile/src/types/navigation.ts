@@ -57,7 +57,11 @@ export type AdminDashboardStackParamList = {
 
 export type AdminAttendanceStackParamList = {
   GroupList: undefined;
+  AttendanceCalendar: undefined;
+  AttendanceMode: { groupId: string; groupName: string };
   BulkMarking: { groupId: string; groupName: string };
+  SequentialAttendance: { groupId: string; groupName: string };
+  AttendanceSummary: { groupId: string; groupName: string; marks: string };
 };
 
 export type AdminManagementStackParamList = {
@@ -98,6 +102,10 @@ export type SuperAdminOrganizationsStackParamList = {
   OrgDetail: { orgId: string };
 };
 
+export type SuperAdminAnalyticsStackParamList = {
+  Analytics: undefined;
+};
+
 export type SuperAdminProfileStackParamList = {
   Profile: undefined;
   ChangePassword: undefined;
@@ -106,7 +114,46 @@ export type SuperAdminProfileStackParamList = {
 export type SuperAdminTabsParamList = {
   Platform: NavigatorScreenParams<SuperAdminPlatformStackParamList>;
   Organizations: NavigatorScreenParams<SuperAdminOrganizationsStackParamList>;
+  SuperAdminAnalytics: NavigatorScreenParams<SuperAdminAnalyticsStackParamList>;
   SuperAdminProfile: NavigatorScreenParams<SuperAdminProfileStackParamList>;
+};
+
+// ─── Teacher Stacks ──────────────────────────────────────────────────────────
+
+export type TeacherAttendanceStackParamList = {
+  GroupList: undefined;
+  AttendanceCalendar: undefined;
+  AttendanceMode: { groupId: string; groupName: string };
+  BulkMarking: { groupId: string; groupName: string };
+  SequentialAttendance: { groupId: string; groupName: string };
+  AttendanceSummary: { groupId: string; groupName: string; marks: string };
+};
+
+export type TeacherAnnouncementsStackParamList = {
+  Announcements: undefined;
+  AnnouncementForm: { announcementId?: string } | undefined;
+};
+
+export type TeacherLeaveStackParamList = {
+  LeaveManagement: undefined;
+};
+
+export type TeacherStudentsStackParamList = {
+  Students: undefined;
+  StudentForm: { personId?: string } | undefined;
+};
+
+export type TeacherProfileStackParamList = {
+  Profile: undefined;
+  ChangePassword: undefined;
+};
+
+export type TeacherTabsParamList = {
+  TeacherAttendance: NavigatorScreenParams<TeacherAttendanceStackParamList>;
+  TeacherAnnouncements: NavigatorScreenParams<TeacherAnnouncementsStackParamList>;
+  TeacherLeave: NavigatorScreenParams<TeacherLeaveStackParamList>;
+  TeacherStudents: NavigatorScreenParams<TeacherStudentsStackParamList>;
+  TeacherProfile: NavigatorScreenParams<TeacherProfileStackParamList>;
 };
 
 // ─── Root Navigator ──────────────────────────────────────────────────────────
@@ -116,6 +163,7 @@ export type RootStackParamList = {
   ParentTabs: NavigatorScreenParams<ParentTabsParamList>;
   AdminTabs: NavigatorScreenParams<AdminTabsParamList>;
   SuperAdminTabs: NavigatorScreenParams<SuperAdminTabsParamList>;
+  TeacherTabs: NavigatorScreenParams<TeacherTabsParamList>;
 };
 
 // ─── Declaration merging for useNavigation type safety ────────────────────────

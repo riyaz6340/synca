@@ -150,11 +150,11 @@ export default function AnnouncementsPage() {
         <tbody>
           {announcements.map((a) => (
             <tr key={a.id}>
-              <td style={tdStyle}>{a.title}</td>
-              <td style={tdStyle}>{a.target_type}</td>
-              <td style={tdStyle}>{a.scheduled_at ? new Date(a.scheduled_at).toLocaleString() : '—'}</td>
-              <td style={tdStyle}>{a.published_at ? new Date(a.published_at).toLocaleString() : 'Not published'}</td>
-              <td style={tdStyle}>
+              <td style={tdStyle} data-label="Title">{a.title}</td>
+              <td style={tdStyle} data-label="Target">{a.target_type}</td>
+              <td style={tdStyle} data-label="Scheduled">{a.scheduled_at ? new Date(a.scheduled_at).toLocaleString() : '—'}</td>
+              <td style={tdStyle} data-label="Published">{a.published_at ? new Date(a.published_at).toLocaleString() : 'Not published'}</td>
+              <td style={tdStyle} data-label="Actions">
                 <button onClick={() => openEdit(a)} style={btnSmall}>Edit</button>
                 {!a.published_at && (
                   <button onClick={() => void handlePublish(a.id)} style={{ ...btnSmall, marginLeft: '0.5rem', color: '#16a34a' }}>Publish</button>

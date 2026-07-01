@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { authenticate } from '../middleware/authenticate';
 import { tenantIsolation } from '../middleware/tenantIsolation';
 import { authorize } from '../middleware/authorize';
+import { requirePermission } from '../middleware/requirePermission';
+import { isAssignedToGroup } from '../services/teacherGroupService';
 import db from '../config/database';
 import { recordAttendance, bulkRecordAttendance } from '../services/attendanceService';
 import { logAudit } from '../utils/auditLog';
@@ -10,13 +12,72 @@ const router = Router();
 
 const VALID_PRESENCE_STATUSES = ['Present', 'Absent', 'Late', 'On_Leave'];
 
-// POST /bulk - Record attendance for all active Persons in a Group (Admin only)
+// GET /group/:groupId/members - Get group members sorted by roll_number for sequential attendance
+router.get(
+  '/group/:groupId/members',
+  authenticate,
+  tenantIsolation,
+  requirePermission('mark_attendance'),
+  async (req: Request, res: Response): Promise<void> => {
+    const groupId = req.params.groupId as string;
+
+    try {
+      // Validate group belongs to the caller's organization
+      const group = await db('groups')
+        .where({ id: groupId, organization_id: req.organizationId })
+        .first();
+
+      if (!group) {
+        res.status(404).json({ error: 'Group not found in your organization' });
+        return;
+      }
+
+      // For Teacher role: additionally validate they are assigned to this group
+      if (req.user!.role === 'Teacher') {
+        const assigned = await isAssignedToGroup(req.user!.user_id, groupId);
+        if (!assigned) {
+          res.status(403).json({ error: 'Forbidden: you are not assigned to this group' });
+          return;
+        }
+      }
+
+      // Query person_groups joined with persons to get member details
+      // Sort: roll_number ASC NULLS LAST, then name ASC for those with null roll_number
+      const members = await db('person_groups')
+        .join('persons', 'person_groups.person_id', 'persons.id')
+        .where('person_groups.group_id', groupId)
+        .where('persons.is_active', true)
+        .where('persons.organization_id', req.organizationId)
+        .select(
+          'persons.id as person_id',
+          'persons.name',
+          'person_groups.roll_number'
+        )
+        .orderByRaw('person_groups.roll_number ASC NULLS LAST')
+        .orderBy('persons.name', 'asc');
+
+      const result = members.map((m) => ({
+        person_id: m.person_id,
+        name: m.name,
+        roll_number: m.roll_number ?? null,
+        photo_url: null, // photo_url not yet stored in persons table
+      }));
+
+      res.status(200).json({ members: result });
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+// POST /bulk - Record attendance for all active Persons in a Group (Admin and Teacher with mark_attendance)
 // IMPORTANT: This route must be registered BEFORE any /:param routes
 router.post(
   '/bulk',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
+  requirePermission('mark_attendance'),
   async (req: Request, res: Response): Promise<void> => {
     const { group_id, date, presence_status, records } = req.body;
 
@@ -69,6 +130,15 @@ router.post(
       if (!group) {
         res.status(400).json({ error: 'Group not found in your organization' });
         return;
+      }
+
+      // For Teacher role: validate they are assigned to the target group
+      if (req.user!.role === 'Teacher') {
+        const assigned = await isAssignedToGroup(req.user!.user_id, group_id);
+        if (!assigned) {
+          res.status(403).json({ error: 'Forbidden: you are not assigned to this group' });
+          return;
+        }
       }
 
       // ── Per-student mode ──────────────────────────────────────────────────
@@ -523,12 +593,21 @@ router.get(
   '/marked-dates',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { group_id, year, month } = req.query;
     if (!group_id || !year || !month) {
       res.status(400).json({ error: 'group_id, year, and month are required' });
       return;
+    }
+
+    // For Teacher role: validate they are assigned to the requested group
+    if (req.user!.role === 'Teacher') {
+      const assigned = await isAssignedToGroup(req.user!.user_id, group_id as string);
+      if (!assigned) {
+        res.status(403).json({ error: 'Forbidden: you are not assigned to this group' });
+        return;
+      }
     }
 
     const startDate = `${year}-${String(Number(month)).padStart(2, '0')}-01`;
