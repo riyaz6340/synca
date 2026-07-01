@@ -41,6 +41,13 @@ export default function RoleTemplateListPage() {
     void fetchTemplates()
   }, [fetchTemplates])
 
+  // Scroll to top when page loads (fixes mobile scroll position after navigation)
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const mainEl = document.querySelector('.admin-main')
+    if (mainEl) mainEl.scrollTop = 0
+  }, [])
+
   async function handleDelete(template: RoleTemplate) {
     if (!confirm(`Delete role template "${template.name}"?`)) return
     setDeleting(template.id)
@@ -115,6 +122,11 @@ export default function RoleTemplateListPage() {
           ))}
         </div>
       )}
+
+      {/* Mobile floating create button - always visible */}
+      <div style={{ position: 'sticky', bottom: '0', padding: '0.75rem 0', background: 'linear-gradient(transparent, #f8fafc 30%)', marginTop: '1rem' }}>
+        <button onClick={() => navigate('/admin/role-templates/new')} style={{ ...btnPrimary, width: '100%', padding: '0.75rem' }}>+ Create Template</button>
+      </div>
     </div>
   )
 }

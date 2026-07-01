@@ -72,6 +72,13 @@ export default function TeacherListPage() {
     void fetchTeachers()
   }, [fetchTeachers])
 
+  // Scroll to top when page loads (fixes mobile scroll position after navigation)
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const mainEl = document.querySelector('.admin-main')
+    if (mainEl) mainEl.scrollTop = 0
+  }, [])
+
   const filteredTeachers = teachers.filter((t) => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
@@ -151,6 +158,11 @@ export default function TeacherListPage() {
           ))}
         </div>
       )}
+
+      {/* Mobile floating create button - always visible */}
+      <div style={{ position: 'sticky', bottom: '0', padding: '0.75rem 0', background: 'linear-gradient(transparent, #f8fafc 30%)', marginTop: '1rem' }}>
+        <button onClick={() => navigate('/admin/teachers/create')} style={{ ...btnPrimary, width: '100%', padding: '0.75rem' }}>+ Create Teacher</button>
+      </div>
     </div>
   )
 }
