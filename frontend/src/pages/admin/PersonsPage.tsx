@@ -202,8 +202,8 @@ export default function PersonsPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Students</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.4rem', margin: 0 }}>👥 Students</h1>
         <button onClick={openCreate} style={btnPrimary}>+ Add Student</button>
       </div>
 
@@ -238,7 +238,14 @@ export default function PersonsPage() {
         ))}
       </div>
 
-      {persons.length === 0 && <p style={{ color: '#64748b', marginTop: '1rem' }}>No students found. Click &quot;+ Add Student&quot; to add one.</p>}
+      {persons.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
+          <h2 style={{ fontSize: '1.1rem', color: '#475569', margin: '0 0 0.5rem' }}>No Students Yet</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0 0 1rem' }}>Click &quot;+ Add Student&quot; to add your first student.</p>
+          <button onClick={openCreate} style={btnPrimary}>+ Add Student</button>
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       {showModal && (

@@ -22,7 +22,7 @@ interface ReportSummary {
   attendancePercentage: number
 }
 
-type ReportType = 'class' | 'student' | 'organization' | 'date_wise'
+type ReportType = 'class' | 'student' | 'organization'
 
 export default function ReportsPage() {
   const [groups, setGroups] = useState<Group[]>([])
@@ -125,7 +125,7 @@ export default function ReportsPage() {
 
       {/* Report Type Tabs */}
       <div className="scroll-x-mobile" style={{ display: 'flex', gap: '4px', background: '#f1f5f9', borderRadius: '8px', padding: '3px', marginBottom: '1.5rem', width: 'fit-content' }}>
-        {([['class', '🏫 Class Report'], ['student', '👤 Student Report'], ['organization', '🏢 School Report'], ['date_wise', '📅 Date-wise']] as [ReportType, string][]).map(([type, label]) => (
+        {([['class', '🏫 Class Report'], ['student', '👤 Student Report'], ['organization', '🏢 School Report']] as [ReportType, string][]).map(([type, label]) => (
           <button key={type} onClick={() => { setReportType(type); setResults([]); setSummary(null) }}
             style={{ ...tabBtn, background: reportType === type ? '#fff' : 'transparent', color: reportType === type ? '#1e293b' : '#64748b', boxShadow: reportType === type ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
             {label}

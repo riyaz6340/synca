@@ -25,8 +25,13 @@ export default function RoleTemplateListPage() {
       setError('')
       const res = await apiClient.get('/role-templates')
       setTemplates(res.data.templates ?? [])
-    } catch {
-      setError('Failed to load role templates')
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } }).response?.status
+      if (status === 404) {
+        setError('Role Templates feature requires backend update. Please redeploy to Render.')
+      } else {
+        setError('Failed to load role templates')
+      }
     } finally {
       setLoading(false)
     }
@@ -60,8 +65,8 @@ export default function RoleTemplateListPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Role Templates</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.4rem', margin: 0 }}>🔑 Role Templates</h1>
         <button onClick={() => navigate('/admin/role-templates/new')} style={btnPrimary}>+ Create Template</button>
       </div>
 
@@ -73,55 +78,50 @@ export default function RoleTemplateListPage() {
       )}
 
       {templates.length === 0 ? (
-        <p style={{ color: '#64748b' }}>No role templates found. Create one to get started.</p>
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔑</div>
+          <h2 style={{ fontSize: '1.1rem', color: '#475569', margin: '0 0 0.5rem' }}>No Role Templates</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0 0 1rem' }}>
+            Create a role template to define permission sets for teachers.
+          </p>
+          <button onClick={() => navigate('/admin/role-templates/new')} style={btnPrimary}>+ Create Template</button>
+        </div>
       ) : (
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              <th style={thStyle}>Name</th>
-              <th style={thStyle}>Permissions</th>
-              <th style={thStyle}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {templates.map((t) => (
-              <tr key={t.id}>
-                <td style={tdStyle} data-label="Name">{t.name}</td>
-                <td style={tdStyle} data-label="Permissions">
-                  <span style={badgeStyle}>{t.permissions.length} permission{t.permissions.length !== 1 ? 's' : ''}</span>
-                  <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#64748b' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {templates.map((t) => (
+            <div key={t.id} style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <strong style={{ fontSize: '0.95rem' }}>{t.name}</strong>
+                  <div style={{ marginTop: '0.3rem' }}>
+                    <span style={badgeStyle}>{t.permissions.length} permission{t.permissions.length !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div style={{ marginTop: '0.3rem', fontSize: '0.72rem', color: '#64748b', lineHeight: 1.4 }}>
                     {t.permissions.join(', ')}
                   </div>
-                </td>
-                <td style={tdStyle} data-label="Actions">
-                  <button
-                    onClick={() => navigate(`/admin/role-templates/${t.id}/edit`)}
-                    style={btnSmall}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => void handleDelete(t)}
-                    disabled={deleting === t.id}
-                    style={{ ...btnSmall, marginLeft: '0.5rem', color: '#dc2626', borderColor: '#fca5a5' }}
-                  >
-                    {deleting === t.id ? 'Deleting...' : 'Delete'}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                <button onClick={() => navigate(`/admin/role-templates/${t.id}/edit`)} style={actionBtn}>✏️ Edit</button>
+                <button
+                  onClick={() => void handleDelete(t)}
+                  disabled={deleting === t.id}
+                  style={{ ...actionBtn, color: '#dc2626' }}
+                >
+                  {deleting === t.id ? '⏳ Deleting...' : '🗑 Delete'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   )
 }
 
-const btnPrimary: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }
-const btnSmall: React.CSSProperties = { background: 'transparent', border: '1px solid #cbd5e1', padding: '0.25rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }
-const thStyle: React.CSSProperties = { textAlign: 'left', padding: '0.5rem', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase' }
-const tdStyle: React.CSSProperties = { padding: '0.5rem', borderBottom: '1px solid #f1f5f9' }
+const btnPrimary: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500 }
+const cardStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.75rem 1rem' }
+const actionBtn: React.CSSProperties = { background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.3rem 0.5rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.72rem', color: '#475569' }
 const badgeStyle: React.CSSProperties = { background: '#eff6ff', color: '#2563eb', padding: '0.15rem 0.5rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 500 }
 const errorBanner: React.CSSProperties = { background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', padding: '0.75rem 1rem', borderRadius: '6px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }
 const dismissBtn: React.CSSProperties = { background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: '1.2rem', padding: '0 0.25rem' }

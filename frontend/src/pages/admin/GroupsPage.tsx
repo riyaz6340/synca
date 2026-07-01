@@ -179,35 +179,41 @@ export default function GroupsPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Groups</h1>
-        <button onClick={openCreate} style={btnPrimary}>+ Create Group</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.4rem', margin: 0 }}>🏫 Classes</h1>
+        <button onClick={openCreate} style={btnPrimary}>+ Create Class</button>
       </div>
 
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Name</th>
-            <th style={thStyle}>Description</th>
-            <th style={thStyle}>Members</th>
-            <th style={thStyle}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+      {/* Group Cards (mobile-friendly) */}
+      {groups.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏫</div>
+          <h2 style={{ fontSize: '1.1rem', color: '#475569', margin: '0 0 0.5rem' }}>No Classes Yet</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0 0 1rem' }}>Create a class to organize your students.</p>
+          <button onClick={openCreate} style={btnPrimary}>+ Create Class</button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {groups.map((g) => (
-            <tr key={g.id}>
-              <td style={tdStyle} data-label="Name">{g.name}</td>
-              <td style={tdStyle} data-label="Description">{g.description}</td>
-              <td style={tdStyle} data-label="Members">{g.member_count ?? g.members?.length ?? '—'}</td>
-              <td style={tdStyle} data-label="Actions">
-                <button onClick={() => openEdit(g)} style={btnSmall}>Edit</button>
-                <button onClick={() => void openManageMembers(g)} style={{ ...btnSmall, marginLeft: '0.5rem' }}>Members</button>
-                <button onClick={() => void openSubjects(g)} style={{ ...btnSmall, marginLeft: '0.5rem', color: '#7c3aed' }}>Subjects</button>
-              </td>
-            </tr>
+            <div key={g.id} style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <strong style={{ fontSize: '0.95rem' }}>{g.name}</strong>
+                  {g.description && <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: '#64748b' }}>{g.description}</p>}
+                </div>
+                <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '10px', background: '#eff6ff', color: '#2563eb', fontWeight: 500 }}>
+                  {g.member_count ?? g.members?.length ?? 0} students
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                <button onClick={() => openEdit(g)} style={actionBtnStyle}>✏️ Edit</button>
+                <button onClick={() => void openManageMembers(g)} style={actionBtnStyle}>👥 Members</button>
+                <button onClick={() => void openSubjects(g)} style={{ ...actionBtnStyle, color: '#7c3aed' }}>📚 Subjects</button>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       {showModal && (
@@ -363,9 +369,11 @@ export default function GroupsPage() {
   )
 }
 
-const btnPrimary: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }
-const btnSecondary: React.CSSProperties = { background: '#e2e8f0', color: '#334155', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }
+const btnPrimary: React.CSSProperties = { background: '#2563eb', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500 }
+const btnSecondary: React.CSSProperties = { background: '#e2e8f0', color: '#334155', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }
 const btnSmall: React.CSSProperties = { background: 'transparent', border: '1px solid #cbd5e1', padding: '0.25rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }
+const cardStyle: React.CSSProperties = { background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.75rem 1rem' }
+const actionBtnStyle: React.CSSProperties = { background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.3rem 0.5rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.72rem', color: '#475569' }
 const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }
 const thStyle: React.CSSProperties = { textAlign: 'left', padding: '0.5rem', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase' }
 const tdStyle: React.CSSProperties = { padding: '0.5rem', borderBottom: '1px solid #f1f5f9' }

@@ -37,8 +37,13 @@ export default function SequentialAttendancePage() {
         setIsEmpty(false)
         setMembers(data.map(m => ({ ...m, status: null })))
       }
-    } catch {
-      setError('Failed to load group members')
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } }).response?.status
+      if (status === 404) {
+        setError('Sequential attendance is not available. Please update the backend and redeploy.')
+      } else {
+        setError('Failed to load group members')
+      }
     } finally {
       setLoading(false)
     }

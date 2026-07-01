@@ -39,8 +39,8 @@ export default function App() {
         <Route path="/super-admin" element={<PlatformDashboard />} />
       </Route>
 
-      {/* Admin routes - protected, Admin role only */}
-      <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+      {/* Admin routes - protected, Admin and Teacher roles */}
+      <Route element={<ProtectedRoute allowedRoles={['Admin', 'Teacher']} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
