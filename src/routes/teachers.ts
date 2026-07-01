@@ -21,6 +21,12 @@ import {
 
 const router = Router();
 
+/** Helper to safely extract a single string from req.params */
+function paramStr(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] || '';
+  return value || '';
+}
+
 const SALT_ROUNDS = 12;
 
 /**
@@ -188,7 +194,7 @@ router.put(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = paramStr(req.params.id);
     const { email, password } = req.body;
 
     try {
@@ -272,7 +278,7 @@ router.delete(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = paramStr(req.params.id);
 
     try {
       // Find teacher by id, role, and organization
@@ -317,7 +323,7 @@ router.put(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = paramStr(req.params.id);
     const { group_ids } = req.body;
 
     // Validate request body
@@ -372,7 +378,7 @@ router.get(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = paramStr(req.params.id);
 
     try {
       // Validate that the teacher exists and belongs to the same organization
@@ -401,7 +407,7 @@ router.get(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = paramStr(req.params.id);
 
     try {
       // Validate that the teacher exists and belongs to the same organization
@@ -447,7 +453,7 @@ router.put(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = paramStr(req.params.id);
     const { permissions } = req.body;
 
     // Validate permissions array
@@ -515,7 +521,7 @@ router.put(
   tenantIsolation,
   authorize('Admin'),
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = paramStr(req.params.id);
     const { template_id } = req.body;
 
     try {
