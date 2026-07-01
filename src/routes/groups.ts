@@ -37,12 +37,12 @@ router.post(
   }
 );
 
-// GET / - List all Groups with member counts (Admin only)
+// GET / - List all Groups with member counts (Admin and Teacher)
 router.get(
   '/',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const groups = await db('groups')
@@ -67,12 +67,12 @@ router.get(
   }
 );
 
-// GET /:id - Get Group details with member list (Admin only)
+// GET /:id - Get Group details with member list (Admin and Teacher)
 router.get(
   '/:id',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 

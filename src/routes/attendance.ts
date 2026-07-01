@@ -332,12 +332,12 @@ router.post(
   }
 );
 
-// GET / - Query attendance records with filters (Admin only)
+// GET / - Query attendance records with filters (Admin and Teacher with view_attendance_reports)
 router.get(
   '/',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { start_date, end_date, person_id, group_id, page, limit } = req.query;
 
@@ -491,7 +491,7 @@ router.get(
   '/dashboard',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { date } = req.query;
 

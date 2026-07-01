@@ -13,7 +13,7 @@ router.get(
   '/attendance/export',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { start_date, end_date, group_id, person_id, format } = req.query;
 
@@ -83,7 +83,7 @@ router.get(
   '/attendance',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { start_date, end_date, group_id, person_id } = req.query;
 

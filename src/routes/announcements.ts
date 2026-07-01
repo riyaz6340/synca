@@ -18,7 +18,7 @@ router.post(
   '/',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { title, body, target_type, target_ids, scheduled_at } = req.body;
 
@@ -86,7 +86,7 @@ router.get(
   '/',
   authenticate,
   tenantIsolation,
-  authorize('Admin'),
+  authorize('Admin', 'Teacher'),
   async (req: Request, res: Response): Promise<void> => {
     const { page, limit } = req.query;
 
