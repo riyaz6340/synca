@@ -33,7 +33,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 import { colors, radius, spacing } from '@/components/theme';
-import { biometric } from '@/services/biometric';
 import { useAuthStore } from '@/stores/auth';
 import type { AppRole } from '@/types/auth';
 
@@ -63,29 +62,11 @@ export default function ProfileScreen(): React.ReactElement {
   const [toggleError, setToggleError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // Probe biometric availability once; only then do we reveal the toggle so it
-  // never appears on devices without enrolled biometric hardware.
+  // Biometric login is currently disabled across the app.
+  // The toggle is hidden by always reporting biometrics as unavailable.
   useEffect(() => {
-    let active = true;
-    void (async () => {
-      try {
-        const result = await biometric.checkAvailability();
-        if (active) {
-          setBiometricAvailable(result.available);
-        }
-      } catch {
-        if (active) {
-          setBiometricAvailable(false);
-        }
-      } finally {
-        if (active) {
-          setBiometricChecked(true);
-        }
-      }
-    })();
-    return () => {
-      active = false;
-    };
+    setBiometricAvailable(false);
+    setBiometricChecked(true);
   }, []);
 
   const onToggleBiometric = async (next: boolean): Promise<void> => {

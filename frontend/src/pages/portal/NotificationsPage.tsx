@@ -36,6 +36,10 @@ export default function NotificationsPage() {
     const stored = localStorage.getItem('avento_read_notifications')
     return stored ? new Set(JSON.parse(stored)) : new Set()
   })
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
+    const stored = localStorage.getItem('avento_dismissed_notifications')
+    return stored ? new Set(JSON.parse(stored)) : new Set()
+  })
 
   const fetchNotifications = useCallback(async (page: number) => {
     try {
@@ -66,7 +70,21 @@ export default function NotificationsPage() {
     localStorage.setItem('avento_read_notifications', JSON.stringify([...merged]))
   }
 
-  const unreadCount = notifications.filter(n => !readIds.has(n.id)).length
+  function dismissNotification(id: string) {
+    const newDismissed = new Set(dismissedIds)
+    newDismissed.add(id)
+    setDismissedIds(newDismissed)
+    localStorage.setItem('avento_dismissed_notifications', JSON.stringify([...newDismissed]))
+  }
+
+  function clearAllNotifications() {
+    const allIds = new Set([...dismissedIds, ...notifications.map(n => n.id)])
+    setDismissedIds(allIds)
+    localStorage.setItem('avento_dismissed_notifications', JSON.stringify([...allIds]))
+  }
+
+  const visibleNotifications = notifications.filter(n => !dismissedIds.has(n.id))
+  const unreadCount = visibleNotifications.filter(n => !readIds.has(n.id)).length
 
   if (loading && notifications.length === 0) return <p>Loading notifications...</p>
   if (error) return <p style={{ color: 'red' }}>{error}</p>
@@ -78,26 +96,30 @@ export default function NotificationsPage() {
           Notifications
           {unreadCount > 0 && <span style={unreadBadge}>{unreadCount} new</span>}
         </h1>
-        {unreadCount > 0 && (
-          <button onClick={markAllAsRead} style={markAllBtn}>Mark all as read</button>
-        )}
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {unreadCount > 0 && (
+            <button onClick={markAllAsRead} style={markAllBtn}>Mark all as read</button>
+          )}
+          {visibleNotifications.length > 0 && (
+            <button onClick={clearAllNotifications} style={clearAllBtn}>Clear All</button>
+          )}
+        </div>
       </div>
 
-      {notifications.length === 0 ? (
+      {visibleNotifications.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
           <p style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔔</p>
           <p>No notifications yet</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {notifications.map((n) => {
+          {visibleNotifications.map((n) => {
             const config = typeConfig[n.type] || defaultTypeConfig
             const isRead = readIds.has(n.id)
 
             return (
               <div
                 key={n.id}
-                onClick={() => markAsRead(n.id)}
                 style={{
                   background: config.bg,
                   border: `1px solid ${config.border}`,
@@ -105,11 +127,21 @@ export default function NotificationsPage() {
                   borderRadius: '8px',
                   padding: '1rem 1.25rem',
                   opacity: isRead ? 0.7 : 1,
-                  cursor: 'pointer',
                   transition: 'opacity 0.2s',
+                  position: 'relative',
                 }}
               >
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                {/* Dismiss (X) button */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); dismissNotification(n.id) }}
+                  style={dismissBtn}
+                  title="Dismiss notification"
+                  aria-label="Dismiss notification"
+                >
+                  ✕
+                </button>
+
+                <div onClick={() => markAsRead(n.id)} style={{ cursor: 'pointer', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                   {/* Icon */}
                   <div style={{
                     width: '40px', height: '40px', borderRadius: '10px',
@@ -163,6 +195,8 @@ function formatDate(dateStr: string): string {
 
 const unreadBadge: React.CSSProperties = { background: '#dc2626', color: '#fff', fontSize: '0.7rem', padding: '0.15rem 0.5rem', borderRadius: '10px', marginLeft: '0.5rem', fontWeight: 600 }
 const markAllBtn: React.CSSProperties = { background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '0.35rem 0.75rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', color: '#475569' }
+const clearAllBtn: React.CSSProperties = { background: '#fef2f2', border: '1px solid #fecaca', padding: '0.35rem 0.75rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', color: '#dc2626' }
+const dismissBtn: React.CSSProperties = { position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1rem', color: '#94a3b8', padding: '0.2rem 0.4rem', borderRadius: '4px', lineHeight: 1 }
 const typeBadgeStyle: React.CSSProperties = { padding: '0.15rem 0.5rem', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }
 const newDot: React.CSSProperties = { width: '8px', height: '8px', borderRadius: '50%', background: '#3b82f6' }
 const paginationBtn: React.CSSProperties = { background: '#fff', border: '1px solid #cbd5e1', padding: '0.4rem 0.8rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', color: '#475569' }

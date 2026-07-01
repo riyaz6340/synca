@@ -377,7 +377,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             user: session.user,
             isAuthenticated: true,
             isLoading: false,
-            biometricEnabled: session.biometricEnabled,
+            biometricEnabled: false,
             organizationName: session.organizationName ?? null,
             logoUrl: session.logoUrl ?? null,
             primaryColor: session.primaryColor ?? null,
@@ -401,7 +401,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: session.user,
         isAuthenticated: true,
         isLoading: false,
-        biometricEnabled: session.biometricEnabled,
+        biometricEnabled: false,
         organizationName: session.organizationName ?? null,
         logoUrl: session.logoUrl ?? null,
         primaryColor: session.primaryColor ?? null,
@@ -419,18 +419,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   enableBiometric: async () => {
-    const result = await biometric.enable();
-    if (!result.success) {
-      throw new Error(result.reason ?? 'Failed to enable biometric login');
-    }
-    set({ biometricEnabled: true });
+    // Biometric login is currently disabled across the app.
+    throw new Error('Biometric login is currently disabled');
   },
 
   disableBiometric: () => {
-    // Interface is synchronous; clear in-memory immediately and let the
-    // persisted preference clear in the background (best-effort, never throws).
+    // Biometric login is currently disabled across the app — no-op.
     set({ biometricEnabled: false });
-    void biometric.disable();
   },
 }));
 
