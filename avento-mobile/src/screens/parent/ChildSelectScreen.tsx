@@ -70,7 +70,7 @@ export default function ChildSelectScreen({ navigation }: Props): React.ReactEle
             testID={`child-select-row-${item.id}`}
             accessibilityRole="button"
             onPress={() =>
-              navigation.navigate('AttendanceHistory', {
+              navigation.navigate('AttendanceCalendar', {
                 personId: item.id,
                 personName: item.name,
               })

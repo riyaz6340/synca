@@ -72,13 +72,18 @@ export default function PlatformDashboard() {
   const fetchDashboard = useCallback(async () => {
     try {
       setLoading(true)
+      setError('')
       const res = await apiClient.get('/super-admin/dashboard')
       setData(res.data)
     } catch (err: unknown) {
-      if ((err as { response?: { status: number } }).response?.status === 403) {
+      const status = (err as { response?: { status: number } }).response?.status
+      const message = (err as { response?: { data?: { error?: string } } }).response?.data?.error
+      if (status === 403) {
         setError('Access denied. SuperAdmin role required.')
+      } else if (status === 401) {
+        setError('Session expired. Please login again.')
       } else {
-        setError('Failed to load dashboard data')
+        setError(message || 'Failed to load dashboard data. Please retry.')
       }
     } finally {
       setLoading(false)
@@ -157,8 +162,8 @@ export default function PlatformDashboard() {
   }
 
   if (loading) return <div style={pageStyle}><p>Loading platform dashboard...</p></div>
-  if (error) return <div style={pageStyle}><p style={{ color: '#dc2626' }}>{error}</p></div>
-  if (!data) return null
+  if (error) return <div style={pageStyle}><p style={{ color: '#dc2626' }}>{error}</p><button onClick={() => void fetchDashboard()} style={{ marginTop: '1rem', padding: '0.5rem 1rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Retry</button></div>
+  if (!data) return <div style={pageStyle}><p style={{ color: '#dc2626' }}>Dashboard data unavailable. The API may be starting up (Render cold start). Please wait and refresh.</p><button onClick={() => void fetchDashboard()} style={{ marginTop: '1rem', padding: '0.5rem 1rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Retry</button></div>
 
   return (
     <div style={pageStyle}>

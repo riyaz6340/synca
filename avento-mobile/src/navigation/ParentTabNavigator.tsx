@@ -27,6 +27,7 @@ import { Text } from 'react-native';
 import { useUnseenAnnouncementCount } from '@/hooks/useAnnouncements';
 import AnnouncementDetailScreen from '@/screens/parent/AnnouncementDetailScreen';
 import AnnouncementListScreen from '@/screens/parent/AnnouncementListScreen';
+import AttendanceCalendarScreen from '@/screens/parent/AttendanceCalendarScreen';
 import AttendanceHistoryScreen from '@/screens/parent/AttendanceHistoryScreen';
 import ChildSelectScreen from '@/screens/parent/ChildSelectScreen';
 import HomeScreen from '@/screens/parent/HomeScreen';
@@ -51,9 +52,6 @@ import { isNavigatorAllowedForRole } from './roleGuard';
 
 // The Home tab's ChildrenList route is backed by the real HomeScreen.
 const ChildrenListScreen = HomeScreen;
-
-// AttendanceCalendar has no real screen yet — keep a placeholder for now.
-const AttendanceCalendarScreen = makePlaceholderScreen('AttendanceCalendar');
 
 // --- Per-tab native stacks --------------------------------------------------
 
@@ -81,14 +79,14 @@ function AttendanceStackNavigator() {
         options={{ title: 'Attendance' }}
       />
       <AttendanceStack.Screen
+        name="AttendanceCalendar"
+        component={AttendanceCalendarScreen}
+        options={{ title: 'Attendance Calendar' }}
+      />
+      <AttendanceStack.Screen
         name="AttendanceHistory"
         component={AttendanceHistoryScreen}
         options={{ title: 'History' }}
-      />
-      <AttendanceStack.Screen
-        name="AttendanceCalendar"
-        component={AttendanceCalendarScreen}
-        options={{ title: 'Calendar' }}
       />
     </AttendanceStack.Navigator>
   );
