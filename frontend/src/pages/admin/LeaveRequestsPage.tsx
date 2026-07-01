@@ -30,6 +30,7 @@ export default function LeaveRequestsPage() {
 
   const isTeacher = user?.role === 'Teacher'
   const assignedGroupIds = teacherContext?.assignedGroups.map(g => g.id) ?? []
+  const assignedGroupIdsKey = assignedGroupIds.join(',')
 
   const fetchRequests = useCallback(async () => {
     try {
@@ -48,7 +49,8 @@ export default function LeaveRequestsPage() {
     } finally {
       setLoading(false)
     }
-  }, [isTeacher, assignedGroupIds])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTeacher, assignedGroupIdsKey])
 
   useEffect(() => {
     void fetchRequests()
