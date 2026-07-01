@@ -28,6 +28,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
 
 import { portalApi } from '@/api/portal';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import {
   DateRangePicker,
   EmptyState,
@@ -174,7 +175,11 @@ export default function AttendanceHistoryScreen({
         end_date: endDate,
       }),
     enabled: rangeValid,
+    staleTime: 10_000, // Refresh quickly for real-time attendance updates
   });
+
+  // Auto-refetch when screen gains focus
+  useRefetchOnFocus(['portal-attendance', personId, startDate, endDate]);
 
   const summary = useMemo(
     () => computeAttendanceSummary(records ?? []),

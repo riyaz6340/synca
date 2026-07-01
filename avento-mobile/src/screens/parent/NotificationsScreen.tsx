@@ -34,6 +34,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { portalApi, type Paginated } from '@/api/portal';
 import { EmptyState, ErrorState, SkeletonLoader } from '@/components';
 import { colors, radius, spacing } from '@/components/theme';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import type { Notification } from '@/types/models';
 import { sortByDateDesc } from '@/utils/sortByDate';
 
@@ -113,7 +114,11 @@ export default function NotificationsScreen(): React.ReactElement {
       const { page, totalPages } = lastPage.pagination;
       return page < totalPages ? page + 1 : undefined;
     },
+    staleTime: 10_000, // Refresh quickly for real-time notifications
   });
+
+  // Auto-refetch when screen gains focus
+  useRefetchOnFocus(['parent', 'notifications']);
 
   // Load the persisted last-seen marker once on mount.
   useEffect(() => {

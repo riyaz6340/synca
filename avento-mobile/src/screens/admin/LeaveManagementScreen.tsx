@@ -28,6 +28,7 @@ import {
   ActivityIndicator,
   Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -46,6 +47,7 @@ import {
   radius,
   spacing,
 } from '@/components';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import type { LeaveRequest } from '@/types/models';
 
 type LeaveStatus = LeaveRequest['status'];
@@ -160,10 +162,14 @@ function LeaveCard({
 export default function LeaveManagementScreen(): React.ReactElement {
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: ADMIN_LEAVE_REQUESTS_QUERY_KEY,
     queryFn: () => adminApi.getLeaveRequests({ page: 1, limit: 100 }),
+    staleTime: 5_000, // Refresh frequently for real-time leave updates
   });
+
+  // Auto-refetch when screen gains focus
+  useRefetchOnFocus(ADMIN_LEAVE_REQUESTS_QUERY_KEY);
 
   const requests = useMemo(() => data?.data ?? [], [data]);
   const groups = useMemo(() => groupByStatus(requests), [requests]);
@@ -253,7 +259,17 @@ export default function LeaveManagementScreen(): React.ReactElement {
     );
   } else {
     body = (
-      <ScrollView contentContainerStyle={styles.listContent} testID="leave-mgmt-list">
+      <ScrollView
+        contentContainerStyle={styles.listContent}
+        testID="leave-mgmt-list"
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => { void refetch(); }}
+            colors={[colors.primary]}
+          />
+        }
+      >
         {groups.map((group) => (
           <View key={group.status} style={styles.group}>
             <Text style={styles.groupHeading} testID={`leave-group-${group.status}`}>

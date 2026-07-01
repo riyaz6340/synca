@@ -24,6 +24,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { useQuery } from '@tanstack/react-query';
 
 import { portalApi } from '@/api/portal';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import {
   EmptyState,
   ErrorState,
@@ -91,7 +92,11 @@ export default function HomeScreen() {
   const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: PARENT_PERSONS_QUERY_KEY,
     queryFn: portalApi.getPersons,
+    staleTime: 10_000, // Refresh every 10 seconds for attendance updates
   });
+
+  // Auto-refetch when screen gains focus (e.g. coming back from another tab)
+  useRefetchOnFocus(PARENT_PERSONS_QUERY_KEY);
 
   // Initial load with no cached data yet → skeleton placeholders.
   if (isLoading) {

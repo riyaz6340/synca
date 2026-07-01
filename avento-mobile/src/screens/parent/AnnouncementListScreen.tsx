@@ -28,7 +28,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { colors, radius, spacing } from '@/components/theme';
-import { useAnnouncementsQuery } from '@/hooks/useAnnouncements';
+import { useAnnouncementsQuery, ANNOUNCEMENTS_QUERY_KEY } from '@/hooks/useAnnouncements';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { markAllSeen } from '@/services/announcementsSeen';
 import type { Announcement } from '@/types/models';
 import type { ParentAnnouncementsStackParamList } from '@/types/navigation';
@@ -66,6 +67,9 @@ function formatPublishedDate(iso: string): string {
 export default function AnnouncementListScreen({ navigation }: Props) {
   const { data, isLoading, isError, refetch, isRefetching } =
     useAnnouncementsQuery();
+
+  // Auto-refetch when screen gains focus
+  useRefetchOnFocus(ANNOUNCEMENTS_QUERY_KEY);
 
   // Reverse-chronological ordering via the shared pure helper (Requirement 5.2).
   const announcements = useMemo(

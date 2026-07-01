@@ -16,6 +16,7 @@
 
 import { useMemo } from 'react';
 import {
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -32,6 +33,7 @@ import { ErrorState } from '@/components/ErrorState';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { colors, radius, spacing } from '@/components/theme';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import type { ParentLeaveStackParamList } from '@/types/navigation';
 import type { LeaveRequest } from '@/types/models';
 
@@ -83,10 +85,14 @@ function LeaveCard({ request }: { request: LeaveRequest }): React.ReactElement {
 export default function LeaveListScreen(): React.ReactElement {
   const navigation = useNavigation<NavProp>();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: ['leave-requests'],
     queryFn: () => portalApi.getLeaveRequests(),
+    staleTime: 5_000, // Refresh every 5 seconds for leave status updates
   });
+
+  // Auto-refetch when screen gains focus
+  useRefetchOnFocus(['leave-requests']);
 
   const groups = useMemo(
     () => groupByStatus(data?.data ?? []),
@@ -119,7 +125,17 @@ export default function LeaveListScreen(): React.ReactElement {
     );
   } else {
     body = (
-      <ScrollView contentContainerStyle={styles.listContent} testID="leave-list">
+      <ScrollView
+        contentContainerStyle={styles.listContent}
+        testID="leave-list"
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => { void refetch(); }}
+            colors={[colors.primary]}
+          />
+        }
+      >
         {groups.map((group) => (
           <View key={group.status} style={styles.group}>
             <Text style={styles.groupHeading} testID={`leave-group-${group.status}`}>
