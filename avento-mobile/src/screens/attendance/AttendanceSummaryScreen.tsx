@@ -100,7 +100,7 @@ export default function AttendanceSummaryScreen() {
       const date = getTodayDate();
       const records = Object.entries(marksMap).map(([person_id, status]) => ({
         person_id,
-        status,
+        presence_status: status,
       }));
 
       await apiClient.post('/api/attendance/bulk', {
