@@ -37,7 +37,13 @@ import type {
 type AttendanceStatus = 'Present' | 'Absent' | 'Late';
 
 type RouteParams = {
-  AttendanceSummary: { groupId: string; groupName: string; marks: string };
+  AttendanceSummary: {
+    groupId: string;
+    groupName: string;
+    marks: string;
+    periodLabel?: string;
+    subjectId?: string;
+  };
 };
 
 type NavProp = NativeStackNavigationProp<
@@ -60,7 +66,7 @@ function getTodayDate(): string {
 export default function AttendanceSummaryScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteProp<RouteParams, 'AttendanceSummary'>>();
-  const { groupId, groupName, marks: marksJson } = route.params;
+  const { groupId, groupName, marks: marksJson, periodLabel, subjectId } = route.params;
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +107,8 @@ export default function AttendanceSummaryScreen() {
         group_id: groupId,
         date,
         records,
+        ...(subjectId ? { subject_id: subjectId } : {}),
+        ...(periodLabel ? { period_label: periodLabel } : {}),
       });
 
       setSuccess(true);
@@ -118,7 +126,7 @@ export default function AttendanceSummaryScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [marksMap, groupId, navigation]);
+  }, [marksMap, groupId, subjectId, periodLabel, navigation]);
 
   // ─── Success state ─────────────────────────────────────────────────────────
 

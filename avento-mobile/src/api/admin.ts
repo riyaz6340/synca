@@ -209,6 +209,18 @@ export const adminApi = {
   },
 
   /**
+   * Get subjects for a specific group/class.
+   * GET /api/subjects?group_id=xxx
+   */
+  async getSubjects(groupId: string): Promise<Array<{ id: string; name: string; period_number?: number; teacher_name?: string }>> {
+    const res = await apiClient.get<{ subjects: Array<{ id: string; name: string; period_number?: number; teacher_name?: string }> }>(
+      '/api/subjects',
+      { params: { group_id: groupId } },
+    );
+    return res.data.subjects ?? [];
+  },
+
+  /**
    * Submit bulk attendance for a group in a single API call.
    * POST /api/attendance/bulk
    *

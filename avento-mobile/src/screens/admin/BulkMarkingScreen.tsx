@@ -78,7 +78,7 @@ export default function BulkMarkingScreen() {
   const queryClient = useQueryClient();
   const enqueue = useOfflineQueue((s) => s.enqueue);
 
-  const { groupId, groupName } = route.params;
+  const { groupId, groupName, periodLabel, subjectId } = route.params as any;
 
   const [date, setDate] = useState<string>(todayIso);
   const [marking, setMarking] = useState<MarkingState>({});
@@ -104,7 +104,14 @@ export default function BulkMarkingScreen() {
   );
 
   const mutation = useMutation({
-    mutationFn: () => adminApi.submitBulkAttendance(buildBulkPayload(groupId, date, marking)),
+    mutationFn: () => {
+      const payload = buildBulkPayload(groupId, date, marking);
+      return adminApi.submitBulkAttendance({
+        ...payload,
+        ...(subjectId ? { subject_id: subjectId } : {}),
+        ...(periodLabel ? { period_label: periodLabel } : {}),
+      } as any);
+    },
     onSuccess: (result) => {
       setSuccessCount(result.count);
       void queryClient.invalidateQueries({ queryKey: ADMIN_GROUPS_QUERY_KEY });
@@ -131,7 +138,11 @@ export default function BulkMarkingScreen() {
       enqueue({
         method: 'POST',
         url: '/api/attendance/bulk',
-        body: buildBulkPayload(groupId, date, marking),
+        body: {
+          ...buildBulkPayload(groupId, date, marking),
+          ...(subjectId ? { subject_id: subjectId } : {}),
+          ...(periodLabel ? { period_label: periodLabel } : {}),
+        },
         maxRetries: 3,
       });
       setQueuedOffline(true);
@@ -207,6 +218,11 @@ export default function BulkMarkingScreen() {
         <Text style={styles.groupName} numberOfLines={1}>
           {groupName}
         </Text>
+        {periodLabel && (
+          <Text style={{ fontSize: 13, color: colors.primary, fontWeight: '600', marginBottom: spacing.sm }}>
+            📌 {periodLabel}
+          </Text>
+        )}
         <View style={styles.dateField}>
           <Text style={styles.dateLabel}>Date</Text>
           <TextInput

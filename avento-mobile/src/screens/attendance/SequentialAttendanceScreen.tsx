@@ -46,7 +46,12 @@ interface GroupMember {
 }
 
 type RouteParams = {
-  SequentialAttendance: { groupId: string; groupName: string };
+  SequentialAttendance: {
+    groupId: string;
+    groupName: string;
+    periodLabel?: string;
+    subjectId?: string;
+  };
 };
 
 type NavProp = NativeStackNavigationProp<
@@ -59,7 +64,7 @@ type NavProp = NativeStackNavigationProp<
 export default function SequentialAttendanceScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteProp<RouteParams, 'SequentialAttendance'>>();
-  const { groupId, groupName } = route.params;
+  const { groupId, groupName, periodLabel, subjectId } = route.params;
 
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,6 +137,8 @@ export default function SequentialAttendanceScreen() {
             groupId,
             groupName,
             marks: JSON.stringify(marksObj),
+            periodLabel: periodLabel ?? undefined,
+            subjectId: subjectId ?? undefined,
           });
         }, 300);
       } else if (currentIndex < members.length - 1) {
@@ -224,6 +231,11 @@ export default function SequentialAttendanceScreen() {
         <Text style={styles.progressText} testID="sequential-attendance-progress">
           {progressText}
         </Text>
+        {periodLabel && (
+          <Text style={styles.periodIndicator}>
+            {periodLabel}
+          </Text>
+        )}
         <View style={styles.progressBarBg}>
           <View
             style={[styles.progressBarFill, { width: `${progressFraction * 100}%` }]}
@@ -404,6 +416,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.textMuted,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
+  periodIndicator: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
     textAlign: 'center',
     marginBottom: spacing.sm,
   },
