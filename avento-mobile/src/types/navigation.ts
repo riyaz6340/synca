@@ -1,5 +1,5 @@
 /**
- * Navigation type definitions for the Avento mobile app.
+ * Navigation type definitions for the Arixx mobile app.
  * Uses React Navigation typing patterns for type-safe navigation.
  * Validates: Requirements 2.1, 2.2, 2.3
  */

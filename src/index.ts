@@ -73,15 +73,15 @@ app.get('/api/setup-seed', async (_req, res) => {
     const adminHash = await bcrypt.hash('Admin@123456', 12);
     const [admin] = await db('users').insert({ organization_id: org.id, email: 'admin@demo.school', password_hash: adminHash, role: 'Admin' }).returning('*');
 
-    // Create Avento Platform org + SuperAdmin
-    const [platformOrg] = await db('organizations').insert({ name: 'Avento Platform', industry_module: 'platform', metadata: '{}' }).returning('*');
+    // Create Arixx Platform org + SuperAdmin
+    const [platformOrg] = await db('organizations').insert({ name: 'Arixx Platform', industry_module: 'platform', metadata: '{}' }).returning('*');
     const founderHash = await bcrypt.hash('Founder@2024', 12);
-    await db('users').insert({ organization_id: platformOrg.id, email: 'founder@avento.app', password_hash: founderHash, role: 'SuperAdmin' });
+    await db('users').insert({ organization_id: platformOrg.id, email: 'founder@arixx.app', password_hash: founderHash, role: 'SuperAdmin' });
 
     res.json({
       message: 'Database seeded successfully!',
       admin: { email: 'admin@demo.school', password: 'Admin@123456', org: org.name, org_id: org.id },
-      founder: { email: 'founder@avento.app', password: 'Founder@2024', org: 'Avento Platform' },
+      founder: { email: 'founder@arixx.app', password: 'Founder@2024', org: 'Arixx Platform' },
       admin_user_id: admin.id,
     });
   } catch (error) {
@@ -124,7 +124,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Avento Platform server running on port ${PORT}`);
+  console.log(`Arixx Platform server running on port ${PORT}`);
 
   // Start scheduled jobs
   startActivityRetentionJob();

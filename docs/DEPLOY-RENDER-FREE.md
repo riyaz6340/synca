@@ -1,4 +1,4 @@
-# Deploy Avento on Render (100% Free)
+# Deploy Arixx on Render (100% Free)
 
 ## What's Free on Render
 - ✅ Web Service (750 hours/month free — enough for 1 always-on service)

@@ -26,7 +26,7 @@ describe('testing infrastructure', () => {
   });
 
   it('renders a React Native component within app providers', () => {
-    renderWithProviders(<Text>Avento Mobile</Text>);
-    expect(screen.getByText('Avento Mobile')).toBeOnTheScreen();
+    renderWithProviders(<Text>Arixx Mobile</Text>);
+    expect(screen.getByText('Arixx Mobile')).toBeOnTheScreen();
   });
 });

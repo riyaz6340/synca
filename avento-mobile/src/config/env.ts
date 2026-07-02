@@ -1,10 +1,10 @@
 /**
- * Environment configuration for the Avento mobile app.
+ * Environment configuration for the Arixx mobile app.
  * Uses Expo's built-in environment variable support (EXPO_PUBLIC_ prefix).
  */
 
 export const ENV = {
-  /** Base URL for the Avento REST API */
+  /** Base URL for the Arixx REST API */
   API_URL: process.env.EXPO_PUBLIC_API_URL || 'https://avento-api.onrender.com',
 
   /** App version (from app.json) */

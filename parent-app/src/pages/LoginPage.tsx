@@ -91,7 +91,7 @@ export default function LoginPage() {
     setError('');
 
     if (!selectedOrgId && !organizationName.trim()) {
-      setError('Please select your school/organization');
+      setError('Please select your institution/organization');
       return;
     }
 
@@ -116,7 +116,7 @@ export default function LoginPage() {
         const message =
           err.response.data?.message ||
           err.response.data?.error ||
-          'Invalid credentials. Please check your email, password, and school name.';
+          'Invalid credentials. Please check your email, password, and institution name.';
         setError(message);
       } else {
         setError('Service unreachable. Please try again later.');
@@ -130,10 +130,10 @@ export default function LoginPage() {
     <div style={pageStyle}>
       <form onSubmit={(e) => void handleSubmit(e)} style={formStyle} aria-label="Login form" noValidate>
         <h1 style={{ marginBottom: '0.5rem', fontSize: '1.5rem', textAlign: 'center', color: '#1e293b' }}>
-          Avento
+          Arixx
         </h1>
         <p style={{ textAlign: 'center', color: '#64748b', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-          People Presence Platform
+          Smart Attendance Platform
         </p>
 
         {error && (
@@ -145,7 +145,7 @@ export default function LoginPage() {
         {/* Organization Selector */}
         <div style={{ marginBottom: '1rem', position: 'relative' }} ref={dropdownRef}>
           <label htmlFor="login-organization" style={labelStyle}>
-            School / Organization
+            Institution / Organization
           </label>
           <input
             id="login-organization"
@@ -154,7 +154,7 @@ export default function LoginPage() {
             onChange={(e) => handleOrgInputChange(e.target.value)}
             onFocus={() => setShowDropdown(true)}
             required
-            placeholder="Type to search your school..."
+            placeholder="Type to search your institution..."
             autoComplete="off"
             disabled={isSubmitting}
             style={inputStyle}
@@ -199,7 +199,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="username"
-            placeholder="admin@school.com or admission number"
+            placeholder="admin@institution.com or admission number"
             disabled={isSubmitting}
             style={inputStyle}
           />

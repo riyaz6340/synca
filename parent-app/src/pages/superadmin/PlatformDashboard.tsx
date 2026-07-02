@@ -162,7 +162,7 @@ export default function PlatformDashboard() {
     <div style={pageStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', margin: 0, color: '#1e293b' }}>Avento Platform Dashboard</h1>
+          <h1 style={{ fontSize: '1.75rem', margin: 0, color: '#1e293b' }}>Arixx Platform Dashboard</h1>
           <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>Founder &amp; Super Admin View</p>
         </div>
         <button onClick={() => void handleLogout()} style={logoutBtn}>Logout</button>
@@ -411,7 +411,7 @@ export default function PlatformDashboard() {
             </p>
 
             <div style={{ marginBottom: '0.75rem' }}>
-              <label style={labelStyle}>Organization / School Name *</label>
+              <label style={labelStyle}>Organization / Institution Name *</label>
               <input
                 type="text"
                 value={addOrgForm.name}
@@ -451,7 +451,7 @@ export default function PlatformDashboard() {
             </div>
 
             <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '1rem 0' }} />
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 0.75rem' }}>Admin Account (school will use this to login)</p>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 0.75rem' }}>Admin Account (institution will use this to login)</p>
 
             <div style={{ marginBottom: '0.75rem' }}>
               <label style={labelStyle}>Admin Email *</label>

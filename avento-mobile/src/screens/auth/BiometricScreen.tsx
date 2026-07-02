@@ -69,7 +69,7 @@ export default function BiometricScreen({
     }
 
     setPhase('prompting');
-    const ok = await biometric.authenticate({ promptMessage: 'Unlock Avento' });
+    const ok = await biometric.authenticate({ promptMessage: 'Unlock Arixx' });
     if (ok) {
       onAuthenticated();
     } else {
@@ -86,7 +86,7 @@ export default function BiometricScreen({
   return (
     <View style={styles.container}>
       <Text style={styles.title} accessibilityRole="header">
-        Unlock Avento
+        Unlock Arixx
       </Text>
 
       {isBusy ? (

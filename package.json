@@ -1,7 +1,7 @@
 {
   "name": "avento-platform",
   "version": "1.0.0",
-  "description": "Avento People Presence Platform - Multi-tenant SaaS for attendance tracking",
+  "description": "Arixx - Smart Attendance Platform - Multi-tenant SaaS for attendance tracking",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

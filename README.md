@@ -1,6 +1,6 @@
-# Avento — People Presence Platform
+# Arixx — Smart Attendance Platform
 
-A multi-tenant SaaS platform for school attendance tracking, parent communication, and operations management.
+A multi-tenant SaaS platform for attendance tracking, parent communication, and operations management.
 
 ## Features
 
@@ -10,7 +10,7 @@ A multi-tenant SaaS platform for school attendance tracking, parent communicatio
 - **Leave management** — Digital request/approve workflow with auto-attendance
 - **Reports** — Class-wise, student-wise, organization-wide with PDF/CSV export
 - **Announcements** — Templates for fee reminders, holidays, events
-- **Holiday calendar** — School-wide holidays shown on everyone's calendar
+- **Holiday calendar** — Institution-wide holidays shown on everyone's calendar
 - **Multi-child parent login** — One login sees all children
 - **Super Admin dashboard** — Platform-wide stats for the founder
 - **PWA** — Installable on phones, works offline

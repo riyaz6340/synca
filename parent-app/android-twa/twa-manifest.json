@@ -1,8 +1,8 @@
 {
   "packageId": "com.avento.app",
   "host": "synca-45ns.vercel.app",
-  "name": "Avento",
-  "launcherName": "Avento",
+  "name": "Arixx",
+  "launcherName": "Arixx",
   "display": "standalone",
   "themeColor": "#4f46e5",
   "navigationColor": "#000000",
@@ -14,7 +14,7 @@
   "shortcuts": [],
   "signing": {
     "keyAlias": "avento-key",
-    "keyFullName": "CN=Avento App, O=Avento, L=IN, C=IN"
+    "keyFullName": "CN=Arixx App, O=Arixx, L=IN, C=IN"
   },
   "generatorApp": "bubblewrap-cli"
 }

@@ -1,5 +1,5 @@
 /**
- * Secure storage service for the Avento mobile app.
+ * Secure storage service for the Arixx mobile app.
  *
  * Wraps `expo-secure-store`, which persists values in the Android Keystore
  * (hardware-backed encryption where available). This module is the single

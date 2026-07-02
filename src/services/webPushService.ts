@@ -3,7 +3,7 @@ import db from '../config/database';
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@avento.app';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@arixx.app';
 
 let configured = false;
 

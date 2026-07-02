@@ -1,6 +1,6 @@
-# Avento Mobile
+# Arixx Mobile
 
-React Native (Expo) mobile application for the Avento People Presence Platform. Android-only.
+React Native (Expo) mobile application for the Arixx Smart Attendance Platform. Android-only.
 
 ## Setup
 

@@ -28,18 +28,18 @@ const db = knex({
 });
 
 async function createSuperAdmin() {
-  const email = process.env.SUPERADMIN_EMAIL || 'founder@avento.app';
+  const email = process.env.SUPERADMIN_EMAIL || 'founder@arixx.app';
   const password = process.env.SUPERADMIN_PASSWORD || 'Founder@2024';
 
   console.log('🔐 Creating SuperAdmin account...\n');
 
   // SuperAdmin needs an organization_id (we'll use the first one, or create a platform org)
-  let platformOrg = await db('organizations').where('name', 'Avento Platform').first();
+  let platformOrg = await db('organizations').where('name', 'Arixx Platform').first();
 
   if (!platformOrg) {
     [platformOrg] = await db('organizations')
       .insert({
-        name: 'Avento Platform',
+        name: 'Arixx Platform',
         industry_module: 'platform',
         metadata: JSON.stringify({ is_platform_org: true }),
       })

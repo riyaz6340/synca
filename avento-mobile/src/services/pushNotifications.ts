@@ -1,5 +1,5 @@
 /**
- * Push notification service for the Avento mobile app.
+ * Push notification service for the Arixx mobile app.
  *
  * Implements the {@link PushService} contract from the design doc
  * ("Push Notification Service Interface"). It wraps `expo-notifications` for

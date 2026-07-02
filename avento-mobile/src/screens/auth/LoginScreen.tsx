@@ -98,7 +98,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title} accessibilityRole="header">
-        Avento
+        Arixx
       </Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
 

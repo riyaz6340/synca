@@ -1,6 +1,6 @@
-# Avento — TWA Android Wrapper
+# Arixx — TWA Android Wrapper
 
-This directory contains the configuration to generate a Trusted Web Activity (TWA) Android app that wraps the Avento PWA for publishing on the Google Play Store.
+This directory contains the configuration to generate a Trusted Web Activity (TWA) Android app that wraps the Arixx PWA for publishing on the Google Play Store.
 
 ## What is a TWA?
 

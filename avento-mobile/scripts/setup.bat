@@ -1,5 +1,5 @@
 @echo off
-echo Installing Avento Mobile dependencies...
+echo Installing Arixx Mobile dependencies...
 cd /d "%~dp0.."
 npm install
 echo.

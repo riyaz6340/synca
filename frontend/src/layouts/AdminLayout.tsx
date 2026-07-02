@@ -67,7 +67,7 @@ export default function AdminLayout() {
         alignItems: 'center', justifyContent: 'space-between', zIndex: 999, display: 'none',
       }}>
         <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.3rem 0.6rem', fontSize: '1.2rem', cursor: 'pointer' }}>☰</button>
-        <h2 style={{ margin: 0, fontSize: '1rem', color: '#1e293b', fontWeight: 700 }}>Avento</h2>
+        <h2 style={{ margin: 0, fontSize: '1rem', color: '#1e293b', fontWeight: 700 }}>Arixx</h2>
         <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{user?.email?.split('@')[0]}</span>
       </div>
 
@@ -92,7 +92,7 @@ export default function AdminLayout() {
               onError={() => setLogoError(true)}
             />
           ) : (
-            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>Avento</h2>
+            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>Arixx</h2>
           )}
           {isLoading ? (
             <div style={{ margin: '0.25rem 0 0', height: '1rem', width: '70%', background: '#1e293b', borderRadius: '4px', animation: 'pulse 1.5s ease-in-out infinite' }} />

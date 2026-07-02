@@ -1,5 +1,5 @@
 /**
- * Domain models for the Avento mobile app.
+ * Domain models for the Arixx mobile app.
  * Reuses the same API contracts as the parent-app PWA and frontend admin dashboard.
  * Validates: Requirements 2.1, 2.2, 2.3, 10.4
  */

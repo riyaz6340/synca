@@ -1,23 +1,23 @@
-# Avento — People Presence Platform
+# Arixx — Smart Attendance Platform
 ## Complete Product Guide
 
 ---
 
-## 1. What is Avento?
+## 1. What is Arixx?
 
-Avento is a **People Presence Platform** — a cloud-based SaaS application that gives organizations real-time visibility into who is present, absent, late, or on leave.
+Arixx is a **Smart Attendance Platform** — a cloud-based SaaS application that gives organizations real-time visibility into who is present, absent, late, or on leave.
 
-Think of it as an **operating system for attendance**. Schools know instantly when a child is absent. Parents get notified within minutes. Administrators generate reports in seconds. Leave requests flow through approvals without paperwork.
+Think of it as an **operating system for attendance**. Institutions know instantly when a student is absent. Parents get notified within minutes. Administrators generate reports in seconds. Leave requests flow through approvals without paperwork.
 
 ### The Core Problem We Solve
 
-Schools today manage attendance using:
+Schools and colleges today manage attendance using:
 - Paper registers (lost, delayed, no parent visibility)
 - WhatsApp groups (chaotic, no structure, no reports)
 - Excel sheets (manual, error-prone, no real-time alerts)
 - Expensive ERP systems (overbuilt, complicated, costly)
 
-**Avento replaces all of this** with a simple, focused platform that does one thing extremely well: **tracks people presence and communicates it instantly.**
+**Arixx replaces all of this** with a simple, focused platform that does one thing extremely well: **tracks people presence and communicates it instantly.**
 
 ---
 
@@ -122,7 +122,7 @@ Schools today manage attendance using:
 ## 4. How It Helps End Users
 
 ### For School Administrators
-| Pain Point | How Avento Solves It |
+| Pain Point | How Arixx Solves It |
 |-----------|---------------------|
 | Spending 30+ minutes on paper registers daily | Mark attendance for entire class in under 2 minutes |
 | No way to know who's absent until end of day | Real-time dashboard shows attendance status instantly |
@@ -132,7 +132,7 @@ Schools today manage attendance using:
 | No way to broadcast urgent messages | Instant announcements to targeted groups |
 
 ### For Parents
-| Pain Point | How Avento Solves It |
+| Pain Point | How Arixx Solves It |
 |-----------|---------------------|
 | Not knowing if child reached school safely | Instant notification when child is marked present/absent |
 | Calling school to report leave | Submit leave request from phone in 30 seconds |
@@ -140,7 +140,7 @@ Schools today manage attendance using:
 | No visibility into attendance patterns | Full attendance history with percentage calculations |
 
 ### For School Management
-| Pain Point | How Avento Solves It |
+| Pain Point | How Arixx Solves It |
 |-----------|---------------------|
 | No data for decision-making | Detailed analytics: which classes have low attendance, trends over time |
 | Compliance and record-keeping | Digital audit trail for all attendance records |
@@ -167,25 +167,25 @@ Most schools will say: paper registers, WhatsApp groups, or manual SMS. The dela
 ### Key Talking Points
 
 1. **Safety Angle** (works best with principals)
-   > "If a student doesn't show up because they bunked or something happened on the way, how quickly does the parent know? With Avento, parents know within 5 minutes of attendance being marked."
+   > "If a student doesn't show up because they bunked or something happened on the way, how quickly does the parent know? With Arixx, parents know within 5 minutes of attendance being marked."
 
 2. **Time Savings** (works best with administrators)
-   > "Your teachers spend 15-20 minutes every morning on registers, then someone manually enters it into a computer. With Avento, one person marks attendance for 40 students in under 2 minutes, and everything is automatic from there."
+   > "Your teachers spend 15-20 minutes every morning on registers, then someone manually enters it into a computer. With Arixx, one person marks attendance for 40 students in under 2 minutes, and everything is automatic from there."
 
 3. **Parent Satisfaction** (works best with management)
-   > "Schools that communicate proactively with parents have 3x higher retention. Avento makes parents feel connected without any extra effort from your staff."
+   > "Schools that communicate proactively with parents have 3x higher retention. Arixx makes parents feel connected without any extra effort from your staff."
 
 4. **Cost Comparison** (when they mention budget)
-   > "You're probably spending ₹X on SMS for communications already. Avento replaces that AND gives you attendance tracking, leave management, reports — all for one subscription."
+   > "You're probably spending ₹X on SMS for communications already. Arixx replaces that AND gives you attendance tracking, leave management, reports — all for one subscription."
 
 ### Handling Objections
 
 | Objection | Response |
 |-----------|----------|
-| "We already use an ERP" | "ERPs are great for fees and academics. Avento focuses solely on presence and communication — it's simpler, faster, and your staff actually uses it daily." |
-| "Our teachers aren't tech-savvy" | "It's a simple dropdown: select class, mark present/absent. If they can use WhatsApp, they can use Avento. We provide training." |
+| "We already use an ERP" | "ERPs are great for fees and academics. Arixx focuses solely on presence and communication — it's simpler, faster, and your staff actually uses it daily." |
+| "Our teachers aren't tech-savvy" | "It's a simple dropdown: select class, mark present/absent. If they can use WhatsApp, they can use Arixx. We provide training." |
 | "Parents won't download another app" | "We deliver via WhatsApp, SMS, and email — whatever parents already use. No app download required." |
-| "We're a small school, we don't need this" | "Small schools benefit most — you don't have admin staff to waste on manual work. Avento automates it all for less than ₹5 per student per month." |
+| "We're a small school, we don't need this" | "Small schools benefit most — you don't have admin staff to waste on manual work. Arixx automates it all for less than ₹5 per student per month." |
 | "What about data security?" | "Each school's data is completely isolated. We use bank-grade encryption for passwords and secure cloud hosting with automatic backups." |
 
 ### Pricing Model (Suggested)
@@ -221,7 +221,7 @@ Most schools will say: paper registers, WhatsApp groups, or manual SMS. The dela
 
 ## 6. Competitive Advantages
 
-| Feature | Avento | Typical School ERP | WhatsApp Groups |
+| Feature | Arixx | Typical School ERP | WhatsApp Groups |
 |---------|--------|-------------------|-----------------|
 | Attendance marking time | 30 seconds | 2-5 minutes | Not tracked |
 | Parent notification speed | Under 5 minutes | Hours/Never | Manual, inconsistent |
@@ -282,4 +282,4 @@ cd frontend && npx vite
 
 ---
 
-*Document Version: 1.0 | Last Updated: June 2026 | Avento Platform MVP*
+*Document Version: 1.0 | Last Updated: June 2026 | Arixx Platform MVP*

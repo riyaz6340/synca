@@ -7,20 +7,20 @@
 import { getDisplayName } from '../getDisplayName';
 
 describe('getDisplayName', () => {
-  it('returns "My School" for null', () => {
-    expect(getDisplayName(null)).toBe('My School');
+  it('returns "My Institution" for null', () => {
+    expect(getDisplayName(null)).toBe('My Institution');
   });
 
-  it('returns "My School" for undefined', () => {
-    expect(getDisplayName(undefined)).toBe('My School');
+  it('returns "My Institution" for undefined', () => {
+    expect(getDisplayName(undefined)).toBe('My Institution');
   });
 
-  it('returns "My School" for an empty string', () => {
-    expect(getDisplayName('')).toBe('My School');
+  it('returns "My Institution" for an empty string', () => {
+    expect(getDisplayName('')).toBe('My Institution');
   });
 
-  it('returns "My School" for a whitespace-only string', () => {
-    expect(getDisplayName('   ')).toBe('My School');
+  it('returns "My Institution" for a whitespace-only string', () => {
+    expect(getDisplayName('   ')).toBe('My Institution');
   });
 
   it('returns the trimmed name for a valid string', () => {

@@ -1,5 +1,5 @@
 /**
- * Biometric authentication service for the Avento mobile app.
+ * Biometric authentication service for the Arixx mobile app.
  *
  * Wraps `expo-local-authentication` (which bridges the Android BiometricPrompt)
  * to provide a small, testable surface for the auth flow:

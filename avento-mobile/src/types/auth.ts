@@ -1,5 +1,5 @@
 /**
- * Authentication types for the Avento mobile app.
+ * Authentication types for the Arixx mobile app.
  * Validates: Requirements 2.1, 2.2, 2.3
  */
 

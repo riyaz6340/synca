@@ -1,4 +1,4 @@
-# ChatGPT Prompts for Avento Marketing Materials
+# ChatGPT Prompts for Arixx Marketing Materials
 
 ---
 
@@ -9,10 +9,10 @@ Copy and paste this into ChatGPT (or any AI image/design tool):
 ---
 
 ```
-Create a professional promotional pamphlet/brochure for a school attendance tracking SaaS product called "Avento - People Presence Platform". 
+Create a professional promotional pamphlet/brochure for a school attendance tracking SaaS product called "Arixx — Smart Attendance Platform". 
 
 Product Details:
-- Avento is a cloud-based attendance management platform designed specifically for schools
+- Arixx is a cloud-based attendance management platform designed for schools, colleges, and other institutions
 - It replaces paper registers, WhatsApp groups, and manual tracking with instant digital attendance
 - Core features:
   1. One-tap attendance marking (teacher marks 60 students in under 10 seconds)
@@ -39,7 +39,7 @@ Tone: Professional yet approachable. Confident. Solution-focused.
 Brand Colors: Blue (#2563eb) as primary, Dark navy (#0f172a) as secondary, White backgrounds
 
 Layout Requirements:
-- Front: Product name "Avento", tagline, hero image showing a teacher with phone/tablet
+- Front: Product name "Arixx", tagline, hero image showing a teacher with phone/tablet
 - Inside Left: Problem statement (current pain points of schools)
 - Inside Right: Solution (features with icons)
 - Back: Pricing table, contact info, QR code for demo
@@ -56,9 +56,9 @@ Copy and paste this into ChatGPT to generate a PowerPoint presentation:
 ---
 
 ```
-Create a professional sales presentation (PowerPoint) script for a school attendance SaaS product called "Avento". This presentation will be shown to school principals and administrators to convince them to adopt the platform.
+Create a professional sales presentation (PowerPoint) script for a school attendance SaaS product called "Arixx". This presentation will be shown to school principals and administrators to convince them to adopt the platform.
 
-Product: Avento - People Presence Platform
+Product: Arixx — Smart Attendance Platform
 Audience: School principals, vice-principals, administrators, IT coordinators
 Duration: 15-20 minutes
 Goal: Get them to sign up for a 14-day free trial
@@ -66,7 +66,7 @@ Goal: Get them to sign up for a 14-day free trial
 Slide-by-slide content needed:
 
 SLIDE 1 - Title
-- "Avento - People Presence Platform"
+- "Arixx — Smart Attendance Platform"
 - Subtitle: "Know who's present. Instantly."
 - Clean, modern design
 
@@ -92,7 +92,7 @@ SLIDE 3 - The Cost of the Problem
 - Visual: Clock/money graphic
 
 SLIDE 4 - The Solution
-- Title: "Meet Avento"
+- Title: "Meet Arixx"
 - Subtitle: "Attendance tracking that takes 10 seconds, not 10 minutes"
 - Key value prop: "One platform for attendance, communication, and operations"
 - Screenshot of the admin dashboard
@@ -100,7 +100,7 @@ SLIDE 4 - The Solution
 SLIDE 5 - How It Works (For Teachers)
 - Title: "For Teachers: Mark attendance in 10 seconds"
 - Steps:
-  1. Open Avento on phone or computer
+  1. Open Arixx on phone or computer
   2. Select your class
   3. Tap only the absent students (everyone else = present)
   4. Done. Parents notified automatically.
@@ -143,9 +143,9 @@ SLIDE 8 - Key Features
   - 🏫 Multi-class support
 
 SLIDE 9 - What Makes Us Different
-- Title: "Why Avento, not an ERP?"
+- Title: "Why Arixx, not an ERP?"
 - Comparison table:
-  | Feature | Avento | School ERP | WhatsApp |
+  | Feature | Arixx | School ERP | WhatsApp |
   |---------|--------|-----------|----------|
   | Setup time | 1 hour | Weeks | Instant but chaotic |
   | Attendance speed | 10 seconds | 2-5 minutes | Not tracked |
@@ -177,7 +177,7 @@ SLIDE 11 - Pricing
 - ROI: "For a school with 500 students on Growth plan = ₹2,500/month. Less than one teacher's daily wage."
 
 SLIDE 12 - Social Proof / Testimonials
-- Title: "Schools love Avento"
+- Title: "Schools love Arixx"
 - (Use placeholder testimonials for now):
   - "We went from 20 minutes to 10 seconds. Teachers actually enjoy marking attendance now." — Principal, Delhi Public School
   - "Parents stopped calling us about attendance. They just check the app." — Admin, St. Mary's Convent
@@ -196,8 +196,8 @@ SLIDE 14 - Call to Action
 - Title: "Ready to transform attendance at your school?"
 - Big button-style text: "Start your 14-day FREE trial today"
 - Contact:
-  - Website: avento.app
-  - Email: hello@avento.app
+  - Website: arixx.app
+  - Email: hello@arixx.app
   - Phone: +91-XXXXXXXXXX
   - WhatsApp: +91-XXXXXXXXXX
 - QR code placeholder for instant sign-up
@@ -224,7 +224,7 @@ Please generate the complete content for all 15 slides, including presenter note
 ## PROMPT 3: One-Page Sales Sheet (Quick Handout)
 
 ```
-Create a one-page sales sheet (A4 size) for "Avento - People Presence Platform", a school attendance tracking SaaS.
+Create a one-page sales sheet (A4 size) for "Arixx — Smart Attendance Platform", a school attendance tracking SaaS.
 
 Layout:
 - Top: Logo + tagline "Know who's present. Instantly."
@@ -252,7 +252,7 @@ Make it scannable, visual, and convincing in under 30 seconds of reading.
 ## PROMPT 4: WhatsApp/SMS Marketing Message
 
 ```
-Write 5 short WhatsApp marketing messages (max 160 characters each) for school administrators promoting Avento attendance platform:
+Write 5 short WhatsApp marketing messages (max 160 characters each) for school administrators promoting Arixx attendance platform:
 
 1. For cold outreach to principals
 2. For follow-up after a demo
@@ -260,7 +260,7 @@ Write 5 short WhatsApp marketing messages (max 160 characters each) for school a
 4. For urgency/limited time offer
 5. For referral request from existing customer
 
-Product: Avento - school attendance platform, ₹3/student/month, instant parent notifications, 10-second attendance marking.
+Product: Arixx - attendance platform, ₹3/student/month, instant parent notifications, 10-second attendance marking.
 
 Keep them conversational, professional, and action-oriented. Include a call-to-action in each.
 ```
@@ -270,14 +270,14 @@ Keep them conversational, professional, and action-oriented. Include a call-to-a
 ## PROMPT 5: Email Sequence (3 emails)
 
 ```
-Write a 3-email cold outreach sequence for school principals/administrators promoting Avento attendance platform.
+Write a 3-email cold outreach sequence for school principals/administrators promoting Arixx attendance platform.
 
 Email 1: Introduction (problem-focused)
 Email 2: Solution + social proof (3 days after Email 1)
 Email 3: Last chance + free trial offer (5 days after Email 2)
 
 Product details:
-- Avento: Cloud attendance platform for schools
+- Arixx: Cloud attendance platform for schools and institutions
 - 10-second attendance marking
 - Instant parent notifications via WhatsApp/SMS
 - Calendar view for parents
@@ -301,4 +301,4 @@ Subject lines: Curiosity-driven, personalized.
    - Or manually in PowerPoint/Google Slides
 3. **For images**: Use Midjourney or DALL-E with prompts like "modern Indian school teacher using tablet for attendance, professional photography, blue color scheme"
 4. **For the sales sheet**: Generate in Canva using their one-pager templates
-5. **Screenshots**: Take real screenshots from your running Avento app to include in materials
+5. **Screenshots**: Take real screenshots from your running Arixx app to include in materials

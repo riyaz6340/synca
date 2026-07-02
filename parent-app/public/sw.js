@@ -1,4 +1,4 @@
-const CACHE_NAME = 'avento-v1';
+const CACHE_NAME = 'arixx-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

@@ -25,7 +25,7 @@ export default function PortalLayout() {
       <header style={headerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '1.3rem' }}>📚</span>
-          <h1 style={{ fontSize: '1rem', color: '#1e293b', margin: 0, fontWeight: 700 }}>Avento</h1>
+          <h1 style={{ fontSize: '1rem', color: '#1e293b', margin: 0, fontWeight: 700 }}>Arixx</h1>
         </div>
 
         <nav style={navStyle}>

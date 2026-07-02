@@ -1,4 +1,4 @@
-# Building the Avento Android APK
+# Building the Arixx Android APK
 
 Complete step-by-step guide for generating a signed APK for Google Play Store publishing.
 
@@ -93,7 +93,7 @@ Output: `./app-release-signed.aab`
 4. Click **"Package for stores"** → Select **Android**
 5. Configure:
    - Package ID: `com.avento.app`
-   - App name: Avento
+   - App name: Arixx
    - Theme color: #4f46e5
 6. Click **Download**
 7. Extract the zip — it contains an Android Studio project
@@ -154,7 +154,7 @@ https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=http
 - Pay the one-time $25 registration fee
 
 ### 2. Create a new app
-- App name: **Avento**
+- App name: **Arixx**
 - Default language: English
 - App type: App
 - Free or Paid: Free

@@ -1,7 +1,7 @@
 {
-  "name": "Avento - People Presence Platform",
-  "short_name": "Avento",
-  "description": "School attendance tracking and parent communication platform",
+  "name": "Arixx — Smart Attendance Platform",
+  "short_name": "Arixx",
+  "description": "Attendance tracking and parent communication platform",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",

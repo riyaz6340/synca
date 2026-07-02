@@ -1,4 +1,4 @@
-# Avento Mobile App Guide
+# Arixx Mobile App Guide
 
 ## Current State: PWA (Progressive Web App)
 
@@ -105,7 +105,7 @@ If you want a native app wrapper without rewriting:
 ```bash
 # In your frontend/ directory
 npm install @capacitor/core @capacitor/cli
-npx cap init "Avento" "com.avento.app"
+npx cap init "Arixx" "com.avento.app"
 npm run build
 npx cap add android
 npx cap add ios

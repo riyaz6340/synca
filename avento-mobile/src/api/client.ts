@@ -1,5 +1,5 @@
 /**
- * Axios-based API client for the Avento mobile app.
+ * Axios-based API client for the Arixx mobile app.
  *
  * Responsibilities:
  *  - Centralize the base URL (from `EXPO_PUBLIC_API_URL` via `ENV.API_URL`).
@@ -69,7 +69,7 @@ function isOfflineError(error: AxiosError): boolean {
 }
 
 /**
- * Create a configured axios instance with the Avento interceptor stack.
+ * Create a configured axios instance with the Arixx interceptor stack.
  *
  * Dependencies (`getToken`, `getOrganizationId`, `onUnauthorized`) are injected
  * so the client can be wired up once the auth store / secure storage service

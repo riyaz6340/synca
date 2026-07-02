@@ -234,7 +234,7 @@ async function clearLocalSession(): Promise<void> {
  * and SecureStorage. Fires asynchronously after session restore when the
  * persisted session has no cached organization name (Requirement 6.5).
  *
- * Errors are swallowed: the UI will fall back to "My School" until the next
+ * Errors are swallowed: the UI will fall back to "My Institution" until the next
  * successful fetch.
  */
 async function fetchAndCacheOrganizationName(
@@ -252,7 +252,7 @@ async function fetchAndCacheOrganizationName(
       });
     }
   } catch {
-    // Best-effort: UI falls back to "My School" via getDisplayName.
+    // Best-effort: UI falls back to "My Institution" via getDisplayName.
   }
 }
 

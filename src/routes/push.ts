@@ -48,7 +48,7 @@ router.post(
   tenantIsolation,
   async (req: Request, res: Response): Promise<void> => {
     const sent = await sendPushToUser(req.user!.user_id, {
-      title: 'Avento Test',
+      title: 'Arixx Test',
       body: 'Push notifications are working! 🎉',
       type: 'test',
     });

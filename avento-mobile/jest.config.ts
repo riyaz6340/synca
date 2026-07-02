@@ -1,7 +1,7 @@
 import type { Config } from 'jest';
 
 /**
- * Jest configuration for the Avento mobile app.
+ * Jest configuration for the Arixx mobile app.
  *
  * Uses the `jest-expo` preset (the standard for Expo SDK 51 / React Native
  * projects), with TypeScript support provided by babel-preset-expo. The same

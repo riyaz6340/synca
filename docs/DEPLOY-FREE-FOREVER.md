@@ -1,4 +1,4 @@
-# Deploy Avento — Free Forever (Render + Neon + Vercel)
+# Deploy Arixx — Free Forever (Render + Neon + Vercel)
 
 ## Architecture
 ```
@@ -16,7 +16,7 @@ Neon gives you a **free Postgres database that never expires** (0.5GB storage, m
 
 1. Go to **https://neon.tech** → Sign up (GitHub login works)
 2. Click **"Create Project"**
-   - Project name: `avento`
+   - Project name: `arixx`
    - Region: **Asia (Singapore)** or closest to you
    - Postgres version: 16 (default)
 3. Click **"Create"**
@@ -64,7 +64,7 @@ JWT_SECRET=<generate: node -e "console.log(require('crypto').randomBytes(48).toS
 JWT_EXPIRES_IN=30d
 VAPID_PUBLIC_KEY=BBrdGA6XIcbxcug7cF6tTNhnFakSulGl-aWLQ7u01SusorK6D9uLkVnjewEjTXTasboj-cJuCX3vmJdQTIT-lf8
 VAPID_PRIVATE_KEY=CGpXlqoQBx_N6yiuyebhkLpXQg8zjSp4DK3L0pkW6-U
-VAPID_SUBJECT=mailto:admin@avento.app
+VAPID_SUBJECT=mailto:admin@arixx.app
 CORS_ORIGINS=https://synca.vercel.app
 REDIS_HOST=
 REDIS_PORT=6379
@@ -146,11 +146,11 @@ const knex = require('knex');
 const bcrypt = require('bcrypt');
 const db = knex({ client: 'pg', connection: { connectionString: process.env.DATABASE_URL || 'postgresql://' + process.env.DB_USER + ':' + process.env.DB_PASSWORD + '@' + process.env.DB_HOST + ':' + process.env.DB_PORT + '/' + process.env.DB_NAME + '?sslmode=require' }});
 async function run() {
-  let org = await db('organizations').where('name', 'Avento Platform').first();
-  if (!org) { [org] = await db('organizations').insert({ name: 'Avento Platform', industry_module: 'platform', metadata: '{}' }).returning('*'); }
+  let org = await db('organizations').where('name', 'Arixx Platform').first();
+  if (!org) { [org] = await db('organizations').insert({ name: 'Arixx Platform', industry_module: 'platform', metadata: '{}' }).returning('*'); }
   const hash = await bcrypt.hash('Founder@2024', 12);
-  await db('users').insert({ organization_id: org.id, email: 'founder@avento.app', password_hash: hash, role: 'SuperAdmin' }).onConflict(['organization_id','email']).ignore();
-  console.log('SuperAdmin: founder@avento.app / Founder@2024 / Org: Avento Platform');
+  await db('users').insert({ organization_id: org.id, email: 'founder@arixx.app', password_hash: hash, role: 'SuperAdmin' }).onConflict(['organization_id','email']).ignore();
+  console.log('SuperAdmin: founder@arixx.app / Founder@2024 / Org: Arixx Platform');
   await db.destroy();
 }
 run().catch(e => { console.error(e); process.exit(1); });
@@ -175,7 +175,7 @@ Render free services sleep after 15 min idle. Set up a free cron to keep it awak
 
 1. Open your Vercel URL
 2. Login as Admin: `admin@demo.school` / `Admin@123456` / select "Demo School"
-3. Login as Founder: `founder@avento.app` / `Founder@2024` / select "Avento Platform"
+3. Login as Founder: `founder@arixx.app` / `Founder@2024` / select "Arixx Platform"
 
 ---
 
@@ -196,8 +196,8 @@ Render free services sleep after 15 min idle. Set up a free cron to keep it awak
 
 | Milestone | Action | Cost |
 |-----------|--------|------|
-| 10+ schools | Render Starter (no sleep) | $7/month |
-| 50+ schools | Neon Pro (more storage) | $19/month |
+| 10+ institutions | Render Starter (no sleep) | $7/month |
+| 50+ institutions | Neon Pro (more storage) | $19/month |
 | Custom domain | Buy domain | $10/year |
 | SMS/WhatsApp | Twilio / WhatsApp API | Pay per message |
 

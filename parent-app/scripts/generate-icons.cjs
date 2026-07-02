@@ -28,8 +28,8 @@ async function generate() {
 
   const screenshotSvg = `<svg width="390" height="844" xmlns="http://www.w3.org/2000/svg">
     <rect width="390" height="844" fill="#4f46e5"/>
-    <text x="195" y="400" font-family="Arial" font-size="32" fill="white" text-anchor="middle">Avento</text>
-    <text x="195" y="450" font-family="Arial" font-size="16" fill="#c7d2fe" text-anchor="middle">People Presence Platform</text>
+    <text x="195" y="400" font-family="Arial" font-size="32" fill="white" text-anchor="middle">Arixx</text>
+    <text x="195" y="450" font-family="Arial" font-size="16" fill="#c7d2fe" text-anchor="middle">Smart Attendance Platform</text>
   </svg>`;
   await sharp(Buffer.from(screenshotSvg)).resize(390, 844).png().toFile(path.join(outputDir, 'screenshot-mobile.png'));
   console.log('Created screenshot-mobile.png');

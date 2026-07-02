@@ -1,4 +1,4 @@
-const CACHE_NAME = 'avento-v1';
+const CACHE_NAME = 'arixx-v1';
 
 // Install event - cache essential files
 self.addEventListener('install', (event) => {
@@ -45,7 +45,7 @@ self.addEventListener('fetch', (event) => {
 
 // Push event - show notification
 self.addEventListener('push', (event) => {
-  let data = { title: 'Avento', body: 'You have a new notification', type: 'notification' };
+  let data = { title: 'Arixx', body: 'You have a new notification', type: 'notification' };
   try {
     if (event.data) data = event.data.json();
   } catch {

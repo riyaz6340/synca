@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Avento - People Presence Platform",
-  "short_name": "Avento",
+  "name": "Arixx — Smart Attendance Platform",
+  "short_name": "Arixx",
   "description": "Track attendance, announcements, and leave requests",
   "start_url": "/",
   "display": "standalone",
@@ -35,7 +35,7 @@
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Avento Login Screen"
+      "label": "Arixx Login Screen"
     }
   ]
 }

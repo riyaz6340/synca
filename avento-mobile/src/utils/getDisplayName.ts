@@ -1,12 +1,12 @@
 /**
  * Pure helper that resolves an organization name for display purposes.
  * Returns the trimmed name when it is a non-empty string, otherwise
- * falls back to "My School".
+ * falls back to "My Institution".
  *
  * Validates: Requirements 4.4
  */
 export function getDisplayName(name: string | null | undefined): string {
-  return name?.trim() || 'My School';
+  return name?.trim() || 'My Institution';
 }
 
 export default getDisplayName;
